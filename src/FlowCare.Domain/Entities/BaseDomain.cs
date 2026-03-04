@@ -1,6 +1,6 @@
 namespace FlowCare.Domain.Entities;
 
-public abstract class BaseDomain
+public abstract class BaseEntity
 {
     public Guid Id { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

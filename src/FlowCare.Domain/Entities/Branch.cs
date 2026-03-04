@@ -1,6 +1,6 @@
 namespace FlowCare.Domain.Entities;
 
-public class Branch : BaseDomain
+public class Branch : BaseEntity
 {
     public string SeedId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

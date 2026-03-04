@@ -5,14 +5,14 @@ namespace FlowCare.Infrastructure.Data;
 
 public class FlowCareDbContext(DbContextOptions<FlowCareDbContext> options) : DbContext(options)
 {
-    public DbSet<Branch> Branches => Set<Branch>();
-    public DbSet<ServiceType> ServiceTypes => Set<ServiceType>();
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Slot> Slots => Set<Slot>();
-    public DbSet<Appointment> Appointments => Set<Appointment>();
-    public DbSet<StaffServiceType> StaffServiceTypes => Set<StaffServiceType>();
-    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-    public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
+    public DbSet<Branch> Branches { get; set; }
+    public DbSet<ServiceType> ServiceTypes { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Slot> Slots { get; set; }
+    public DbSet<Appointment> Appointments { get; set; }
+    public DbSet<StaffServiceType> StaffServiceTypes { get; set; }
+    public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<SystemSetting> SystemSettings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,11 +35,12 @@ public class FlowCareDbContext(DbContextOptions<FlowCareDbContext> options) : Db
     {
         var now = DateTimeOffset.UtcNow;
 
-        foreach (var entry in ChangeTracker.Entries<BaseDomain>())
+        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.CreatedAt = now;
+                if (entry.Entity.CreatedAt == default)
+                    entry.Entity.CreatedAt = now;
                 entry.Entity.UpdatedAt = null;
             }
             else if (entry.State == EntityState.Modified)

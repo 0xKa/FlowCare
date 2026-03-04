@@ -2,7 +2,7 @@ using FlowCare.Domain.Enums;
 
 namespace FlowCare.Domain.Entities;
 
-public class Appointment : BaseDomain
+public class Appointment : BaseEntity
 {
     public string SeedId { get; set; } = string.Empty;
     public Guid CustomerId { get; set; }

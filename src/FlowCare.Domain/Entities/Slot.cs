@@ -1,6 +1,6 @@
 namespace FlowCare.Domain.Entities;
 
-public class Slot : BaseDomain
+public class Slot : BaseEntity
 {
     public string SeedId { get; set; } = string.Empty;
     public Guid BranchId { get; set; }

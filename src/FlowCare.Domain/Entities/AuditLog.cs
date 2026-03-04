@@ -1,6 +1,6 @@
 namespace FlowCare.Domain.Entities;
 
-public class AuditLog : BaseDomain
+public class AuditLog : BaseEntity
 {
     public string SeedId { get; set; } = string.Empty;
     public Guid ActorId { get; set; }

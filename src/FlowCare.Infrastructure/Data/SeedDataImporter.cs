@@ -11,7 +11,7 @@ namespace FlowCare.Infrastructure.Data;
 public class SeedDataImporter(FlowCareDbContext db)
 {
     // Maps seed string IDs to generated Guids for FK resolution
-    private readonly Dictionary<string, Guid> _idMap = new();
+    private readonly Dictionary<string, Guid> _idMap = [];
 
     public async Task ImportAsync(string filePath)
     {
@@ -160,8 +160,8 @@ public class SeedDataImporter(FlowCareDbContext db)
                 BranchId = ResolveId(s.BranchId),
                 ServiceTypeId = ResolveId(s.ServiceTypeId),
                 StaffId = s.StaffId != null ? ResolveId(s.StaffId) : null,
-                StartAt = s.StartAt,
-                EndAt = s.EndAt,
+                StartAt = s.StartAt.ToUniversalTime(),
+                EndAt = s.EndAt.ToUniversalTime(),
                 Capacity = s.Capacity,
                 IsActive = s.IsActive
             };
@@ -192,7 +192,7 @@ public class SeedDataImporter(FlowCareDbContext db)
                 SlotId = ResolveId(a.SlotId),
                 StaffId = a.StaffId != null ? ResolveId(a.StaffId) : null,
                 Status = ParseStatus(a.Status),
-                CreatedAt = a.CreatedAt
+                CreatedAt = a.CreatedAt.ToUniversalTime()
             };
             _idMap[a.Id] = entity.Id;
             db.Appointments.Add(entity);
@@ -216,7 +216,7 @@ public class SeedDataImporter(FlowCareDbContext db)
                 ActionType = al.ActionType,
                 EntityType = al.EntityType,
                 EntityId = al.EntityId,
-                Timestamp = al.Timestamp,
+                Timestamp = al.Timestamp.ToUniversalTime(),
                 Metadata = al.Metadata != null ? JsonSerializer.Serialize(al.Metadata) : null
             };
             db.AuditLogs.Add(entity);
