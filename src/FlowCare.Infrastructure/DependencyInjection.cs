@@ -2,6 +2,7 @@ using FlowCare.Application.Interfaces;
 using FlowCare.Domain.Enums;
 using FlowCare.Infrastructure.Auth;
 using FlowCare.Infrastructure.Data;
+using FlowCare.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +30,7 @@ public static class DependencyInjection
             .AddPolicy("CustomerOnly", p => p.RequireRole(nameof(UserRole.Customer)));
 
         services.AddScoped<IBranchAuthorizationService, BranchAuthorizationService>();
+        services.AddScoped<IBranchService, BranchService>();
 
         return services;
     }
