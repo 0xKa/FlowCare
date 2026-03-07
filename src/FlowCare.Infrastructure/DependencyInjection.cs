@@ -1,4 +1,8 @@
+using FlowCare.Application.Interfaces;
+using FlowCare.Domain.Enums;
+using FlowCare.Infrastructure.Auth;
 using FlowCare.Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +15,20 @@ public static class DependencyInjection
     {
         services.AddDbContext<FlowCareDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddAuthentication(BasicAuthenticationHandler.SchemeName)
+            .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
+                BasicAuthenticationHandler.SchemeName, null);
+
+        services.AddAuthorizationBuilder()
+            .AddPolicy("AdminOnly", p => p.RequireRole(nameof(UserRole.Admin)))
+            .AddPolicy("ManagerOrAdmin", p => p.RequireRole(
+                nameof(UserRole.Admin), nameof(UserRole.BranchManager)))
+            .AddPolicy("StaffOrAbove", p => p.RequireRole(
+                nameof(UserRole.Admin), nameof(UserRole.BranchManager), nameof(UserRole.Staff)))
+            .AddPolicy("CustomerOnly", p => p.RequireRole(nameof(UserRole.Customer)));
+
+        services.AddScoped<IBranchAuthorizationService, BranchAuthorizationService>();
 
         return services;
     }

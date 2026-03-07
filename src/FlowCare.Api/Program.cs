@@ -27,9 +27,7 @@ using (var scope = app.Services.CreateScope())
             await seeder.ImportAsync(fullPath);
         }
         else
-        {
             app.Logger.LogWarning("Seed data file not found at {Path}", fullPath);
-        }
     }
 }
 
@@ -53,6 +51,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
