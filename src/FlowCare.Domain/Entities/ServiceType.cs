@@ -2,8 +2,7 @@ namespace FlowCare.Domain.Entities;
 
 public class ServiceType : BaseEntity
 {
-    public string SeedId { get; set; } = string.Empty;
-    public Guid BranchId { get; set; }
+    public string BranchId { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int DurationMinutes { get; set; }

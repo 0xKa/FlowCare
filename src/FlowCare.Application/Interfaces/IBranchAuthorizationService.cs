@@ -7,12 +7,12 @@ public interface IBranchAuthorizationService
     /// <summary>
     /// Returns the user ID from the claims principal.
     /// </summary>
-    Guid GetUserId(ClaimsPrincipal user);
+    string GetUserId(ClaimsPrincipal user);
 
     /// <summary>
     /// Returns the branch ID the user is assigned to, or null for admin/customer.
     /// </summary>
-    Guid? GetBranchId(ClaimsPrincipal user);
+    string? GetBranchId(ClaimsPrincipal user);
 
     /// <summary>
     /// Returns the user's role as a string.
@@ -23,5 +23,5 @@ public interface IBranchAuthorizationService
     /// Checks whether the user is authorized to access data for the specified branch.
     /// Admins can access all branches. Managers and staff can only access their own.
     /// </summary>
-    bool CanAccessBranch(ClaimsPrincipal user, Guid branchId);
+    bool CanAccessBranch(ClaimsPrincipal user, string branchId);
 }

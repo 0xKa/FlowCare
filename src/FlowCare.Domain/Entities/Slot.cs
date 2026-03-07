@@ -2,10 +2,9 @@ namespace FlowCare.Domain.Entities;
 
 public class Slot : BaseEntity
 {
-    public string SeedId { get; set; } = string.Empty;
-    public Guid BranchId { get; set; }
-    public Guid ServiceTypeId { get; set; }
-    public Guid? StaffId { get; set; }
+    public string BranchId { get; set; } = string.Empty;
+    public string ServiceTypeId { get; set; } = string.Empty;
+    public string? StaffId { get; set; }
     public DateTimeOffset StartAt { get; set; }
     public DateTimeOffset EndAt { get; set; }
     public int Capacity { get; set; }

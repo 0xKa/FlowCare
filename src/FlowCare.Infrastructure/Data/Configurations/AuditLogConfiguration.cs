@@ -9,10 +9,9 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
     public void Configure(EntityTypeBuilder<AuditLog> builder)
     {
         builder.HasKey(a => a.Id);
+        builder.Property(a => a.Id).HasMaxLength(50);
 
-        builder.Property(a => a.SeedId).HasMaxLength(50);
-        builder.HasIndex(a => a.SeedId).IsUnique().HasFilter("\"SeedId\" != ''");
-
+        builder.Property(a => a.ActorId).HasMaxLength(50).IsRequired();
         builder.Property(a => a.ActorRole).HasMaxLength(20).IsRequired();
         builder.Property(a => a.ActionType).HasMaxLength(50).IsRequired();
         builder.Property(a => a.EntityType).HasMaxLength(50).IsRequired();

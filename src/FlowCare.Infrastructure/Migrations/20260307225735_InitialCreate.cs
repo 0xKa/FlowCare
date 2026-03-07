@@ -15,9 +15,8 @@ namespace FlowCare.Infrastructure.Migrations
                 name: "AuditLogs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SeedId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    ActorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    ActorId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     ActorRole = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     ActionType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     EntityType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
@@ -36,8 +35,7 @@ namespace FlowCare.Infrastructure.Migrations
                 name: "Branches",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SeedId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     City = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Address = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
@@ -67,9 +65,8 @@ namespace FlowCare.Infrastructure.Migrations
                 name: "ServiceTypes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SeedId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    BranchId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    BranchId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     DurationMinutes = table.Column<int>(type: "integer", nullable: false),
@@ -92,15 +89,14 @@ namespace FlowCare.Infrastructure.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SeedId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Username = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     PasswordHash = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     Role = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     FullName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Email = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Phone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    BranchId = table.Column<Guid>(type: "uuid", nullable: true),
+                    BranchId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     IdImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -121,11 +117,10 @@ namespace FlowCare.Infrastructure.Migrations
                 name: "Slots",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SeedId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    BranchId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ServiceTypeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    StaffId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    BranchId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    ServiceTypeId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    StaffId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     StartAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     EndAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     Capacity = table.Column<int>(type: "integer", nullable: false),
@@ -161,8 +156,8 @@ namespace FlowCare.Infrastructure.Migrations
                 name: "StaffServiceTypes",
                 columns: table => new
                 {
-                    StaffId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ServiceTypeId = table.Column<Guid>(type: "uuid", nullable: false)
+                    StaffId = table.Column<string>(type: "character varying(50)", nullable: false),
+                    ServiceTypeId = table.Column<string>(type: "character varying(50)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -185,13 +180,12 @@ namespace FlowCare.Infrastructure.Migrations
                 name: "Appointments",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SeedId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uuid", nullable: false),
-                    BranchId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ServiceTypeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    SlotId = table.Column<Guid>(type: "uuid", nullable: true),
-                    StaffId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    CustomerId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    BranchId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    ServiceTypeId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    SlotId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    StaffId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     Status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     AttachmentPath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     Notes = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
@@ -244,13 +238,6 @@ namespace FlowCare.Infrastructure.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Appointments_SeedId",
-                table: "Appointments",
-                column: "SeedId",
-                unique: true,
-                filter: "\"SeedId\" != ''");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Appointments_ServiceTypeId",
                 table: "Appointments",
                 column: "ServiceTypeId");
@@ -271,23 +258,9 @@ namespace FlowCare.Infrastructure.Migrations
                 column: "ActorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AuditLogs_SeedId",
-                table: "AuditLogs",
-                column: "SeedId",
-                unique: true,
-                filter: "\"SeedId\" != ''");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_AuditLogs_Timestamp",
                 table: "AuditLogs",
                 column: "Timestamp");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Branches_SeedId",
-                table: "Branches",
-                column: "SeedId",
-                unique: true,
-                filter: "\"SeedId\" != ''");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceTypes_BranchId",
@@ -295,23 +268,9 @@ namespace FlowCare.Infrastructure.Migrations
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ServiceTypes_SeedId",
-                table: "ServiceTypes",
-                column: "SeedId",
-                unique: true,
-                filter: "\"SeedId\" != ''");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Slots_BranchId",
                 table: "Slots",
                 column: "BranchId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Slots_SeedId",
-                table: "Slots",
-                column: "SeedId",
-                unique: true,
-                filter: "\"SeedId\" != ''");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Slots_ServiceTypeId",
@@ -338,13 +297,6 @@ namespace FlowCare.Infrastructure.Migrations
                 table: "Users",
                 column: "Email",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_SeedId",
-                table: "Users",
-                column: "SeedId",
-                unique: true,
-                filter: "\"SeedId\" != ''");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Username",

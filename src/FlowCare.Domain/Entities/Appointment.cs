@@ -4,12 +4,11 @@ namespace FlowCare.Domain.Entities;
 
 public class Appointment : BaseEntity
 {
-    public string SeedId { get; set; } = string.Empty;
-    public Guid CustomerId { get; set; }
-    public Guid BranchId { get; set; }
-    public Guid ServiceTypeId { get; set; }
-    public Guid? SlotId { get; set; }
-    public Guid? StaffId { get; set; }
+    public string CustomerId { get; set; } = string.Empty;
+    public string BranchId { get; set; } = string.Empty;
+    public string ServiceTypeId { get; set; } = string.Empty;
+    public string? SlotId { get; set; }
+    public string? StaffId { get; set; }
     public AppointmentStatus Status { get; set; }
     public string? AttachmentPath { get; set; }
     public string? Notes { get; set; }

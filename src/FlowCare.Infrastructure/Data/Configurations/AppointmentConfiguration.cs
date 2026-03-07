@@ -9,9 +9,7 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
     public void Configure(EntityTypeBuilder<Appointment> builder)
     {
         builder.HasKey(a => a.Id);
-
-        builder.Property(a => a.SeedId).HasMaxLength(50);
-        builder.HasIndex(a => a.SeedId).IsUnique().HasFilter("\"SeedId\" != ''");
+        builder.Property(a => a.Id).HasMaxLength(50);
 
         builder.Property(a => a.Status)
             .HasConversion<string>()
@@ -19,6 +17,12 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
 
         builder.Property(a => a.AttachmentPath).HasMaxLength(500);
         builder.Property(a => a.Notes).HasMaxLength(2000);
+
+        builder.Property(a => a.CustomerId).HasMaxLength(50);
+        builder.Property(a => a.BranchId).HasMaxLength(50);
+        builder.Property(a => a.ServiceTypeId).HasMaxLength(50);
+        builder.Property(a => a.SlotId).HasMaxLength(50);
+        builder.Property(a => a.StaffId).HasMaxLength(50);
 
         builder.HasOne(a => a.Customer)
             .WithMany(u => u.CustomerAppointments)

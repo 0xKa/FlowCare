@@ -2,8 +2,7 @@ namespace FlowCare.Domain.Entities;
 
 public class AuditLog : BaseEntity
 {
-    public string SeedId { get; set; } = string.Empty;
-    public Guid ActorId { get; set; }
+    public string ActorId { get; set; } = string.Empty;
     public string ActorRole { get; set; } = string.Empty;
     public string ActionType { get; set; } = string.Empty;
     public string EntityType { get; set; } = string.Empty;

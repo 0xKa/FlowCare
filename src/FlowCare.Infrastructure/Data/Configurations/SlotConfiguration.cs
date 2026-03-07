@@ -9,12 +9,14 @@ public class SlotConfiguration : IEntityTypeConfiguration<Slot>
     public void Configure(EntityTypeBuilder<Slot> builder)
     {
         builder.HasKey(s => s.Id);
-
-        builder.Property(s => s.SeedId).HasMaxLength(50);
-        builder.HasIndex(s => s.SeedId).IsUnique().HasFilter("\"SeedId\" != ''");
+        builder.Property(s => s.Id).HasMaxLength(50);
 
         // Soft-delete global query filter
         builder.HasQueryFilter(s => s.DeletedAt == null);
+
+        builder.Property(s => s.BranchId).HasMaxLength(50);
+        builder.Property(s => s.ServiceTypeId).HasMaxLength(50);
+        builder.Property(s => s.StaffId).HasMaxLength(50);
 
         builder.HasOne(s => s.Branch)
             .WithMany(b => b.Slots)

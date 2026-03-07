@@ -60,14 +60,14 @@ public class BasicAuthenticationHandler(
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Role, user.Role.ToString()),
             new("FullName", user.FullName)
         };
 
-        if (user.BranchId.HasValue)
-            claims.Add(new Claim("BranchId", user.BranchId.Value.ToString()));
+        if (user.BranchId is not null)
+            claims.Add(new Claim("BranchId", user.BranchId));
 
         var identity = new ClaimsIdentity(claims, SchemeName);
         var principal = new ClaimsPrincipal(identity);

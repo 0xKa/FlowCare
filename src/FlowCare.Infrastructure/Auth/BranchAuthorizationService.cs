@@ -7,17 +7,15 @@ namespace FlowCare.Infrastructure.Auth;
 // used to read claims we created
 public class BranchAuthorizationService : IBranchAuthorizationService
 {
-    public Guid GetUserId(ClaimsPrincipal user)
+    public string GetUserId(ClaimsPrincipal user)
     {
-        var id = user.FindFirstValue(ClaimTypes.NameIdentifier)
+        return user.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? throw new UnauthorizedAccessException("User ID claim not found.");
-        return Guid.Parse(id);
     }
 
-    public Guid? GetBranchId(ClaimsPrincipal user)
+    public string? GetBranchId(ClaimsPrincipal user)
     {
-        var branchClaim = user.FindFirstValue("BranchId");
-        return branchClaim is not null ? Guid.Parse(branchClaim) : null;
+        return user.FindFirstValue("BranchId");
     }
 
     public string GetRole(ClaimsPrincipal user)
@@ -26,13 +24,13 @@ public class BranchAuthorizationService : IBranchAuthorizationService
             ?? throw new UnauthorizedAccessException("Role claim not found.");
     }
 
-    public bool CanAccessBranch(ClaimsPrincipal user, Guid branchId)
+    public bool CanAccessBranch(ClaimsPrincipal user, string branchId)
     {
         var role = GetRole(user);
         if (role == nameof(UserRole.Admin))
             return true;
 
         var userBranchId = GetBranchId(user);
-        return userBranchId.HasValue && userBranchId.Value == branchId;
+        return userBranchId is not null && userBranchId == branchId;
     }
 }

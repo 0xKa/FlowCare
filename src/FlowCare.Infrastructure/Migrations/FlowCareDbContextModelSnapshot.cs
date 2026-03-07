@@ -24,40 +24,43 @@ namespace FlowCare.Infrastructure.Migrations
 
             modelBuilder.Entity("FlowCare.Domain.Entities.Appointment", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("AttachmentPath")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("BranchId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<string>("SeedId")
+                    b.Property<string>("ServiceTypeId")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("ServiceTypeId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("SlotId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<Guid?>("SlotId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("StaffId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("StaffId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -73,10 +76,6 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("SeedId")
-                        .IsUnique()
-                        .HasFilter("\"SeedId\" != ''");
-
                     b.HasIndex("ServiceTypeId");
 
                     b.HasIndex("SlotId");
@@ -88,17 +87,19 @@ namespace FlowCare.Infrastructure.Migrations
 
             modelBuilder.Entity("FlowCare.Domain.Entities.AuditLog", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("ActionType")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("ActorId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("ActorId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("ActorRole")
                         .IsRequired()
@@ -121,11 +122,6 @@ namespace FlowCare.Infrastructure.Migrations
                     b.Property<string>("Metadata")
                         .HasColumnType("jsonb");
 
-                    b.Property<string>("SeedId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<DateTimeOffset>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
@@ -136,10 +132,6 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("ActorId");
 
-                    b.HasIndex("SeedId")
-                        .IsUnique()
-                        .HasFilter("\"SeedId\" != ''");
-
                     b.HasIndex("Timestamp");
 
                     b.ToTable("AuditLogs");
@@ -147,9 +139,9 @@ namespace FlowCare.Infrastructure.Migrations
 
             modelBuilder.Entity("FlowCare.Domain.Entities.Branch", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -172,11 +164,6 @@ namespace FlowCare.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<string>("SeedId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<string>("Timezone")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -187,21 +174,19 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SeedId")
-                        .IsUnique()
-                        .HasFilter("\"SeedId\" != ''");
-
                     b.ToTable("Branches");
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.ServiceType", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("BranchId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -222,11 +207,6 @@ namespace FlowCare.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<string>("SeedId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -234,21 +214,19 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.HasIndex("SeedId")
-                        .IsUnique()
-                        .HasFilter("\"SeedId\" != ''");
-
                     b.ToTable("ServiceTypes");
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.Slot", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("BranchId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<int>("Capacity")
                         .HasColumnType("integer");
@@ -265,16 +243,14 @@ namespace FlowCare.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("SeedId")
+                    b.Property<string>("ServiceTypeId")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("ServiceTypeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("StaffId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("StaffId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTimeOffset>("StartAt")
                         .HasColumnType("timestamp with time zone");
@@ -286,10 +262,6 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.HasIndex("SeedId")
-                        .IsUnique()
-                        .HasFilter("\"SeedId\" != ''");
-
                     b.HasIndex("ServiceTypeId");
 
                     b.HasIndex("StaffId");
@@ -299,11 +271,11 @@ namespace FlowCare.Infrastructure.Migrations
 
             modelBuilder.Entity("FlowCare.Domain.Entities.StaffServiceType", b =>
                 {
-                    b.Property<Guid>("StaffId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("StaffId")
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("ServiceTypeId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("ServiceTypeId")
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("StaffId", "ServiceTypeId");
 
@@ -330,12 +302,13 @@ namespace FlowCare.Infrastructure.Migrations
 
             modelBuilder.Entity("FlowCare.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.Property<string>("Id")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<Guid?>("BranchId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("BranchId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -371,11 +344,6 @@ namespace FlowCare.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<string>("SeedId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -390,10 +358,6 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("Email")
                         .IsUnique();
-
-                    b.HasIndex("SeedId")
-                        .IsUnique()
-                        .HasFilter("\"SeedId\" != ''");
 
                     b.HasIndex("Username")
                         .IsUnique();
