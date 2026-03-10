@@ -104,7 +104,7 @@ public class AppointmentService(
             .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
 
-        return appointments.Select(MapToResponse).ToList();
+        return [.. appointments.Select(MapToResponse)];
     }
 
     public async Task<AppointmentResponse?> GetByIdForCustomerAsync(string appointmentId, string customerId)
@@ -185,8 +185,6 @@ public class AppointmentService(
         return (await MapToResponseAsync(appointment), null);
     }
 
-    // --- Staff / Manager / Admin ---
-
     public async Task<List<AppointmentResponse>> ListAsync(string role, string userId, string? branchId)
     {
         var query = db.Appointments
@@ -213,7 +211,7 @@ public class AppointmentService(
             .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
 
-        return appointments.Select(MapToResponse).ToList();
+        return [.. appointments.Select(MapToResponse)];
     }
 
     public async Task<AppointmentResponse?> GetByIdAsync(string appointmentId)
@@ -259,8 +257,6 @@ public class AppointmentService(
 
         return (true, null);
     }
-
-    // --- Mapping helpers ---
 
     private async Task<AppointmentResponse> MapToResponseAsync(Appointment appointment)
     {
