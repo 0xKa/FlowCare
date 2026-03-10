@@ -1,3 +1,4 @@
+using FlowCare.Api.CustomWebModels;
 using FlowCare.Application.DTOs;
 using FlowCare.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,9 +17,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("register")]
     [Consumes("multipart/form-data")]
     [AllowAnonymous]
-    public async Task<ActionResult<LoginResponse>> Register(
-        [FromForm] RegisterCustomerRequest request,
-        [FromForm] IFormFile idImage)
+    public async Task<ActionResult<LoginResponse>> Register([FromForm] RegisterCustomerFormRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Username) ||
             string.IsNullOrWhiteSpace(request.Password) ||
@@ -26,15 +25,23 @@ public class AuthController(IAuthService authService) : ControllerBase
             string.IsNullOrWhiteSpace(request.Email))
             return BadRequest(new { error = "Username, password, full name, and email are required." });
 
-        if (idImage is null || idImage.Length == 0)
+        if (request.IdImage is null || request.IdImage.Length == 0)
             return BadRequest(new { error = "ID image is required." });
 
-        await using var imageStream = idImage.OpenReadStream();
+        await using var imageStream = request.IdImage.OpenReadStream();
+
+        var appRequest = new RegisterCustomerRequest(
+            request.Username,
+            request.Password,
+            request.FullName,
+            request.Email,
+            request.Phone);
+
         var (result, error, statusCode) = await authService.RegisterCustomerAsync(
-            request,
+            appRequest,
             imageStream,
-            idImage.FileName,
-            idImage.Length);
+            request.IdImage.FileName,
+            request.IdImage.Length);
 
         if (result is null)
             return StatusCode(statusCode, new { error });
