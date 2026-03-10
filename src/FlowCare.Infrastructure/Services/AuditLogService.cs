@@ -12,7 +12,7 @@ public class AuditLogService(FlowCareDbContext db) : IAuditLogService
     {
         var auditLog = new AuditLog
         {
-            Id = GenerateId(actionType, entityId),
+            Id = GenerateId(),
             ActorId = actorId,
             ActorRole = actorRole,
             ActionType = actionType,
@@ -26,8 +26,5 @@ public class AuditLogService(FlowCareDbContext db) : IAuditLogService
         await db.SaveChangesAsync();
     }
 
-    private static string GenerateId(string actionType, string entityId)
-    {
-        return $"aud_{actionType.ToLowerInvariant()}_{entityId}_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
-    }
+    private static string GenerateId() => $"aud_{Guid.NewGuid():N}";
 }

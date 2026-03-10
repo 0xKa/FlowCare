@@ -33,6 +33,9 @@ public static class DependencyInjection
         services.AddScoped<IBranchService, BranchService>();
         services.AddSingleton<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IAuditLogService, AuditLogService>();
+        services.AddScoped<IAppointmentService, AppointmentService>();
+        services.AddScoped<IAppointmentAttachmentService, AppointmentAttachmentService>();
 
         return services;
     }
