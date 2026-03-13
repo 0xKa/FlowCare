@@ -1,4 +1,6 @@
 using System.Text;
+using System.Globalization;
+using CsvHelper;
 using FlowCare.Application.DTOs;
 using FlowCare.Application.Interfaces;
 using FlowCare.Domain.Entities;
@@ -31,27 +33,44 @@ public class AuditLogQueryService(FlowCareDbContext db) : IAuditLogQueryService
 
     public async Task<Stream> ExportCsvAsync()
     {
-        var logs = await db.AuditLogs
+        var stream = new MemoryStream();
+        var preamble = Encoding.UTF8.GetPreamble();
+        await stream.WriteAsync(preamble);
+
+        await using var writer = new StreamWriter(stream, new UTF8Encoding(false), leaveOpen: true);
+        await using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+
+        csv.WriteField("Id");
+        csv.WriteField("ActorId");
+        csv.WriteField("ActorRole");
+        csv.WriteField("ActionType");
+        csv.WriteField("EntityType");
+        csv.WriteField("EntityId");
+        csv.WriteField("Timestamp");
+        csv.WriteField("Metadata");
+        await csv.NextRecordAsync();
+
+        var logs = db.AuditLogs
             .AsNoTracking()
             .OrderByDescending(a => a.Timestamp)
-            .ToListAsync();
+            .AsAsyncEnumerable();
 
-        var sb = new StringBuilder();
-        sb.AppendLine("Id,ActorId,ActorRole,ActionType,EntityType,EntityId,Timestamp,Metadata");
-
-        foreach (var log in logs)
+        await foreach (var log in logs)
         {
-            sb.Append(EscapeCsv(log.Id)).Append(',');
-            sb.Append(EscapeCsv(log.ActorId)).Append(',');
-            sb.Append(EscapeCsv(log.ActorRole)).Append(',');
-            sb.Append(EscapeCsv(log.ActionType)).Append(',');
-            sb.Append(EscapeCsv(log.EntityType)).Append(',');
-            sb.Append(EscapeCsv(log.EntityId)).Append(',');
-            sb.Append(EscapeCsv(log.Timestamp.ToString("o"))).Append(',');
-            sb.AppendLine(EscapeCsv(log.Metadata ?? ""));
+            csv.WriteField(log.Id);
+            csv.WriteField(log.ActorId);
+            csv.WriteField(log.ActorRole);
+            csv.WriteField(log.ActionType);
+            csv.WriteField(log.EntityType);
+            csv.WriteField(log.EntityId);
+            csv.WriteField(log.Timestamp.ToString("o"));
+            csv.WriteField(log.Metadata);
+            await csv.NextRecordAsync();
         }
 
-        return new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString()));
+        await writer.FlushAsync();
+        stream.Position = 0;
+        return stream;
     }
 
     private async Task<HashSet<string>> GetBranchEntityIdsAsync(string branchId)
@@ -87,13 +106,6 @@ public class AuditLogQueryService(FlowCareDbContext db) : IAuditLogQueryService
         ids.UnionWith(userIds);
 
         return ids;
-    }
-
-    private static string EscapeCsv(string value)
-    {
-        if (value.Contains('"') || value.Contains(',') || value.Contains('\n') || value.Contains('\r'))
-            return $"\"{value.Replace("\"", "\"\"")}\"";
-        return value;
     }
 
     private static AuditLogResponse MapToResponse(AuditLog a) => new(
