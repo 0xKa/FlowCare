@@ -174,9 +174,14 @@ public class SeedDataImporter(FlowCareDbContext db)
 
     private async Task SeedSystemSettingsAsync()
     {
-        var key = "SoftDeleteRetentionDays";
-        if (await db.SystemSettings.FindAsync(key) == null)
-            db.SystemSettings.Add(new SystemSetting { Key = key, Value = "30" });
+        if (await db.SystemSettings.FindAsync("SoftDeleteRetentionDays") == null)
+            db.SystemSettings.Add(new SystemSetting { Key = "SoftDeleteRetentionDays", Value = "30" });
+
+        if (await db.SystemSettings.FindAsync("CustomerBookingsPerDay") == null)
+            db.SystemSettings.Add(new SystemSetting { Key = "CustomerBookingsPerDay", Value = "3" });
+
+        if (await db.SystemSettings.FindAsync("MaxReschedulesPerAppointment") == null)
+            db.SystemSettings.Add(new SystemSetting { Key = "MaxReschedulesPerAppointment", Value = "2" });
     }
 
     private static UserRole ParseRole(string role) => role switch

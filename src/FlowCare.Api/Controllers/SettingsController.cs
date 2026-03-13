@@ -24,4 +24,20 @@ public class SettingsController(
 
         return Ok(result);
     }
+
+    [HttpPut("rate-limits")]
+    public async Task<ActionResult<RateLimitSettingsResponse>> UpdateRateLimits(
+        [FromBody] UpdateRateLimitsRequest request)
+    {
+        var actorId = branchAuth.GetUserId(User);
+        var actorRole = branchAuth.GetRole(User);
+
+        var result = await adminMaintenanceService.SetRateLimitsAsync(
+            request.CustomerBookingsPerDay!.Value,
+            request.MaxReschedulesPerAppointment!.Value,
+            actorId,
+            actorRole);
+
+        return Ok(result);
+    }
 }

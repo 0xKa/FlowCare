@@ -13,10 +13,30 @@ public class AppointmentService(
     IFileStorageService fileStorage) : IAppointmentService
 {
     private const long MaxAttachmentSize = 5 * 1024 * 1024; // 5 MB
+    private const string CustomerBookingsPerDayKey = "CustomerBookingsPerDay";
+    private const string MaxReschedulesPerAppointmentKey = "MaxReschedulesPerAppointment";
+    private const int DefaultCustomerBookingsPerDay = 3;
+    private const int DefaultMaxReschedulesPerAppointment = 2;
 
     public async Task<(AppointmentResponse? Result, string? Error)> BookAsync(
         string customerId, BookAppointmentRequest request, Stream? attachment, string? attachmentFileName)
     {
+        var dailyBookingLimit = await GetIntSettingAsync(
+            CustomerBookingsPerDayKey,
+            DefaultCustomerBookingsPerDay,
+            minValue: 1);
+
+        var startOfToday = DateTimeOffset.UtcNow.Date;
+        var startOfTomorrow = startOfToday.AddDays(1);
+        var todayBookingsCount = await db.Appointments
+            .AsNoTracking()
+            .CountAsync(a => a.CustomerId == customerId
+                && a.CreatedAt >= startOfToday
+                && a.CreatedAt < startOfTomorrow);
+
+        if (todayBookingsCount >= dailyBookingLimit)
+            return (null, $"Daily booking limit reached. Max {dailyBookingLimit} bookings per day.");
+
         // Validate slot exists and is available
         var slot = await db.Slots
             .Include(s => s.Appointments)
@@ -171,6 +191,18 @@ public class AppointmentService(
     public async Task<(AppointmentResponse? Result, string? Error)> RescheduleAsync(
         string appointmentId, string customerId, string newSlotId, string actorRole)
     {
+        var maxReschedulesPerAppointment = await GetIntSettingAsync(
+            MaxReschedulesPerAppointmentKey,
+            DefaultMaxReschedulesPerAppointment,
+            minValue: 0);
+
+        var currentReschedulesCount = await db.AuditLogs
+            .AsNoTracking()
+            .CountAsync(a => a.ActionType == "APPOINTMENT_RESCHEDULED" && a.EntityId == appointmentId);
+
+        if (currentReschedulesCount >= maxReschedulesPerAppointment)
+            return (null, $"Reschedule limit reached. Max {maxReschedulesPerAppointment} reschedules per appointment.");
+
         var appointment = await db.Appointments
             .FirstOrDefaultAsync(a => a.Id == appointmentId && a.CustomerId == customerId);
 
@@ -331,6 +363,18 @@ public class AppointmentService(
         var normalizedPage = page < 1 ? 1 : page;
         var normalizedSize = size < 1 ? 20 : (size > 200 ? 200 : size);
         return (normalizedPage, normalizedSize);
+    }
+
+    private async Task<int> GetIntSettingAsync(string key, int defaultValue, int minValue)
+    {
+        var setting = await db.SystemSettings.FindAsync(key);
+        if (setting is null)
+            return defaultValue;
+
+        if (!int.TryParse(setting.Value, out var parsed))
+            return defaultValue;
+
+        return parsed < minValue ? defaultValue : parsed;
     }
 
     private static AppointmentResponse MapToResponse(Appointment a) => new(

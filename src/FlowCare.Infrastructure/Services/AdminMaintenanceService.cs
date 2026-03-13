@@ -10,6 +10,8 @@ public class AdminMaintenanceService(
     IAuditLogService auditLog) : IAdminMaintenanceService
 {
     private const string RetentionSettingKey = "SoftDeleteRetentionDays";
+    private const string CustomerBookingsPerDayKey = "CustomerBookingsPerDay";
+    private const string MaxReschedulesPerAppointmentKey = "MaxReschedulesPerAppointment";
 
     public async Task<SoftDeleteSettingsResponse> SetRetentionDaysAsync(
         int days,
@@ -81,6 +83,32 @@ public class AdminMaintenanceService(
         return new CleanupResultResponse(slotsToDelete.Count, appointments.Count);
     }
 
+    public async Task<RateLimitSettingsResponse> SetRateLimitsAsync(
+        int customerBookingsPerDay,
+        int maxReschedulesPerAppointment,
+        string actorId,
+        string actorRole)
+    {
+        await UpsertSettingAsync(CustomerBookingsPerDayKey, customerBookingsPerDay.ToString());
+        await UpsertSettingAsync(MaxReschedulesPerAppointmentKey, maxReschedulesPerAppointment.ToString());
+
+        await db.SaveChangesAsync();
+
+        await auditLog.LogAsync(
+            actorId,
+            actorRole,
+            "RATE_LIMITS_UPDATED",
+            "SYSTEM_SETTING",
+            "RATE_LIMITS",
+            new
+            {
+                customer_bookings_per_day = customerBookingsPerDay,
+                max_reschedules_per_appointment = maxReschedulesPerAppointment
+            });
+
+        return new RateLimitSettingsResponse(customerBookingsPerDay, maxReschedulesPerAppointment);
+    }
+
     private async Task<int> GetRetentionDaysAsync()
     {
         var setting = await db.SystemSettings.FindAsync(RetentionSettingKey);
@@ -90,5 +118,20 @@ public class AdminMaintenanceService(
         return int.TryParse(setting.Value, out var days) && days >= 0
             ? days
             : 30;
+    }
+
+    private async Task UpsertSettingAsync(string key, string value)
+    {
+        var setting = await db.SystemSettings.FindAsync(key);
+        if (setting is null)
+        {
+            db.SystemSettings.Add(new Domain.Entities.SystemSetting
+            {
+                Key = key,
+                Value = value
+            });
+        }
+        else
+            setting.Value = value;
     }
 }

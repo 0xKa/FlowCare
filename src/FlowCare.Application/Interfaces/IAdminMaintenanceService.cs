@@ -12,4 +12,10 @@ public interface IAdminMaintenanceService
     Task<CleanupResultResponse> CleanupSoftDeletedSlotsAsync(
         string actorId,
         string actorRole);
+
+    Task<RateLimitSettingsResponse> SetRateLimitsAsync(
+        int customerBookingsPerDay,
+        int maxReschedulesPerAppointment,
+        string actorId,
+        string actorRole);
 }
