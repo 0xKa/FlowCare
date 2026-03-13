@@ -1,12 +1,33 @@
 using FlowCare.Infrastructure;
 using FlowCare.Infrastructure.Data;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage)
+                ? "Invalid request."
+                : e.ErrorMessage)
+            .Distinct()
+            .ToArray();
+
+        var message = errors.Length > 0
+            ? string.Join("; ", errors)
+            : "Validation failed.";
+
+        return new BadRequestObjectResult(new { error = message });
+    };
+});
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -48,6 +69,22 @@ if (app.Environment.IsDevelopment())
         }
     );
 }
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var exceptionFeature = context.Features.Get<IExceptionHandlerFeature>();
+        var message = app.Environment.IsDevelopment()
+            ? exceptionFeature?.Error.Message ?? "An unexpected error occurred."
+            : "An unexpected error occurred.";
+
+        await context.Response.WriteAsJsonAsync(new { error = message });
+    });
+});
 
 app.UseHttpsRedirection();
 
