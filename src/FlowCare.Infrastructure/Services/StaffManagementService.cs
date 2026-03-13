@@ -48,9 +48,11 @@ public class StaffManagementService(FlowCareDbContext db, IAuditLogService audit
             .Take(size)
             .ToListAsync();
 
-        return new PagedResponse<StaffResponse>(
+        return PagedResponse<StaffResponse>.Create(
             staff.Select(MapToStaffResponse).ToList(),
-            total);
+            total,
+            page,
+            size);
     }
 
     public async Task<(bool Success, string? Error)> AssignStaffToServicesAsync(

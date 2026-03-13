@@ -1,5 +1,6 @@
 using FlowCare.Application.DTOs;
 using FlowCare.Application.Interfaces;
+using FlowCare.Api.CustomWebModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,11 +16,9 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<PagedResponse<CustomerResponse>>> ListCustomers(
-        [FromQuery] int page = 1,
-        [FromQuery] int size = 20,
-        [FromQuery] string? term = null)
+        [FromQuery] PagedSearchQueryRequest query)
     {
-        return Ok(await customerService.ListCustomersAsync(page, size, term));
+        return Ok(await customerService.ListCustomersAsync(query.Page, query.Size, query.SearchTerm));
     }
 
     /// <summary>

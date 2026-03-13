@@ -1,5 +1,6 @@
 using FlowCare.Application.DTOs;
 using FlowCare.Application.Interfaces;
+using FlowCare.Api.CustomWebModels;
 using FlowCare.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,10 +20,7 @@ public class BranchSlotsController(
     [HttpGet]
     public async Task<ActionResult<PagedResponse<SlotDetailResponse>>> ListSlots(
         string branchId,
-        [FromQuery] bool includeDeleted = false,
-        [FromQuery] int page = 1,
-        [FromQuery] int size = 20,
-        [FromQuery] string? term = null)
+        [FromQuery] BranchSlotsQueryRequest query)
     {
         var role = branchAuth.GetRole(User);
         var actorBranchId = branchAuth.GetBranchId(User);
@@ -31,10 +29,10 @@ public class BranchSlotsController(
             branchId,
             role,
             actorBranchId,
-            includeDeleted,
-            page,
-            size,
-            term));
+                query.IncludeDeleted,
+                query.Page,
+                query.Size,
+                query.SearchTerm));
     }
 
     /// <summary>

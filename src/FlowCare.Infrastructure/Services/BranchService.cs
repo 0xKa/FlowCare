@@ -35,7 +35,7 @@ public class BranchService(FlowCareDbContext db) : IBranchService
                 b.Id, b.Name, b.City, b.Address, b.Timezone, b.IsActive))
             .ToListAsync();
 
-        return new PagedResponse<BranchResponse>(results, total);
+        return PagedResponse<BranchResponse>.Create(results, total, page, size);
     }
 
     /// <returns>null if the branch does not exist.</returns>
@@ -71,7 +71,7 @@ public class BranchService(FlowCareDbContext db) : IBranchService
                 s.Id, s.BranchId, s.Name, s.Description, s.DurationMinutes, s.IsActive))
             .ToListAsync();
 
-        return new PagedResponse<ServiceTypeResponse>(results, total);
+        return PagedResponse<ServiceTypeResponse>.Create(results, total, page, size);
     }
 
     /// <returns>null if the branch or service type does not exist.</returns>
@@ -134,7 +134,7 @@ public class BranchService(FlowCareDbContext db) : IBranchService
                 true))
             .ToListAsync();
 
-        return new PagedResponse<SlotResponse>(results, total);
+        return PagedResponse<SlotResponse>.Create(results, total, page, size);
     }
 
     private static (int Page, int Size) NormalizePage(int page, int size)

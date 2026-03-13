@@ -1,5 +1,6 @@
 using FlowCare.Application.DTOs;
 using FlowCare.Application.Interfaces;
+using FlowCare.Api.CustomWebModels;
 using FlowCare.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,14 +19,12 @@ public class AuditLogsController(
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<PagedResponse<AuditLogResponse>>> ListAuditLogs(
-        [FromQuery] int page = 1,
-        [FromQuery] int size = 20,
-        [FromQuery] string? term = null)
+        [FromQuery] PagedSearchQueryRequest query)
     {
         var role = branchAuth.GetRole(User);
         var branchId = branchAuth.GetBranchId(User);
 
-        return Ok(await auditLogQuery.ListAsync(role, branchId, page, size, term));
+        return Ok(await auditLogQuery.ListAsync(role, branchId, query.Page, query.Size, query.SearchTerm));
     }
 
     /// <summary>

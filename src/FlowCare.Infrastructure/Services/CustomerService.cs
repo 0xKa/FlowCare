@@ -35,9 +35,11 @@ public class CustomerService(FlowCareDbContext db, IFileStorageService fileStora
             .Take(size)
             .ToListAsync();
 
-        return new PagedResponse<CustomerResponse>(
+        return PagedResponse<CustomerResponse>.Create(
             [.. customers.Select(MapToResponse)],
-            total);
+            total,
+            page,
+            size);
     }
 
     public async Task<CustomerResponse?> GetCustomerByIdAsync(string customerId)

@@ -1,5 +1,6 @@
 using FlowCare.Application.DTOs;
 using FlowCare.Application.Interfaces;
+using FlowCare.Api.CustomWebModels;
 using FlowCare.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,15 +17,19 @@ public class StaffAppointmentsController(
 {
     [HttpGet]
     public async Task<ActionResult<PagedResponse<AppointmentResponse>>> ListAppointments(
-        [FromQuery] int page = 1,
-        [FromQuery] int size = 20,
-        [FromQuery] string? term = null)
+        [FromQuery] PagedSearchQueryRequest query)
     {
         var role = branchAuth.GetRole(User);
         var userId = branchAuth.GetUserId(User);
         var branchId = branchAuth.GetBranchId(User);
 
-        return Ok(await appointmentService.ListAsync(role, userId, branchId, page, size, term));
+        return Ok(await appointmentService.ListAsync(
+            role,
+            userId,
+            branchId,
+            query.Page,
+            query.Size,
+            query.SearchTerm));
     }
 
     [HttpGet("{id}")]

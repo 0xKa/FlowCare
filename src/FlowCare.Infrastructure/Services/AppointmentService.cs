@@ -126,9 +126,11 @@ public class AppointmentService(
             .Take(size)
             .ToListAsync();
 
-        return new PagedResponse<AppointmentResponse>(
+        return PagedResponse<AppointmentResponse>.Create(
             [.. appointments.Select(MapToResponse)],
-            total);
+            total,
+            page,
+            size);
     }
 
     public async Task<AppointmentResponse?> GetByIdForCustomerAsync(string appointmentId, string customerId)
@@ -259,9 +261,11 @@ public class AppointmentService(
             .Take(size)
             .ToListAsync();
 
-        return new PagedResponse<AppointmentResponse>(
+        return PagedResponse<AppointmentResponse>.Create(
             [.. appointments.Select(MapToResponse)],
-            total);
+            total,
+            page,
+            size);
     }
 
     public async Task<AppointmentResponse?> GetByIdAsync(string appointmentId)

@@ -1,5 +1,6 @@
 using FlowCare.Application.DTOs;
 using FlowCare.Application.Interfaces;
+using FlowCare.Api.CustomWebModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,14 +18,12 @@ public class StaffController(
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<PagedResponse<StaffResponse>>> ListStaff(
-        [FromQuery] int page = 1,
-        [FromQuery] int size = 20,
-        [FromQuery] string? term = null)
+        [FromQuery] PagedSearchQueryRequest query)
     {
         var role = branchAuth.GetRole(User);
         var branchId = branchAuth.GetBranchId(User);
 
-        return Ok(await staffService.ListStaffAsync(role, branchId, page, size, term));
+        return Ok(await staffService.ListStaffAsync(role, branchId, query.Page, query.Size, query.SearchTerm));
     }
 
     /// <summary>

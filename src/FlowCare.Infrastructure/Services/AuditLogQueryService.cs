@@ -52,9 +52,11 @@ public class AuditLogQueryService(FlowCareDbContext db) : IAuditLogQueryService
             .Take(size)
             .ToListAsync();
 
-        return new PagedResponse<AuditLogResponse>(
+        return PagedResponse<AuditLogResponse>.Create(
             [.. logs.Select(MapToResponse)],
-            total);
+            total,
+            page,
+            size);
     }
 
     public async Task<Stream> ExportCsvAsync()

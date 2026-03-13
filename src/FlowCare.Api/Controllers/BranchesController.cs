@@ -1,5 +1,6 @@
 using FlowCare.Application.DTOs;
 using FlowCare.Application.Interfaces;
+using FlowCare.Api.CustomWebModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,11 +16,9 @@ public class BranchesController(IBranchService branchService) : ControllerBase
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<PagedResponse<BranchResponse>>> ListBranches(
-        [FromQuery] int page = 1,
-        [FromQuery] int size = 20,
-        [FromQuery] string? term = null)
+        [FromQuery] PagedSearchQueryRequest query)
     {
-        return Ok(await branchService.ListBranchesAsync(page, size, term));
+        return Ok(await branchService.ListBranchesAsync(query.Page, query.Size, query.SearchTerm));
     }
 
     /// <summary>
@@ -28,11 +27,9 @@ public class BranchesController(IBranchService branchService) : ControllerBase
     [HttpGet("{branchId}/services")]
     public async Task<ActionResult<PagedResponse<ServiceTypeResponse>>> ListServices(
         string branchId,
-        [FromQuery] int page = 1,
-        [FromQuery] int size = 20,
-        [FromQuery] string? term = null)
+        [FromQuery] PagedSearchQueryRequest query)
     {
-        var result = await branchService.ListServicesAsync(branchId, page, size, term);
+        var result = await branchService.ListServicesAsync(branchId, query.Page, query.Size, query.SearchTerm);
         if (result is null)
             return NotFound(new { error = "Branch not found." });
 
@@ -46,18 +43,15 @@ public class BranchesController(IBranchService branchService) : ControllerBase
     public async Task<ActionResult<PagedResponse<SlotResponse>>> ListAvailableSlots(
         string branchId,
         string serviceTypeId,
-        [FromQuery] DateOnly? date,
-        [FromQuery] int page = 1,
-        [FromQuery] int size = 20,
-        [FromQuery] string? term = null)
+        [FromQuery] PublicSlotsQueryRequest query)
     {
         var result = await branchService.ListAvailableSlotsAsync(
             branchId,
             serviceTypeId,
-            date,
-            page,
-            size,
-            term);
+            query.Date,
+            query.Page,
+            query.Size,
+            query.SearchTerm);
         if (result is null)
             return NotFound(new { error = "Branch or service type not found." });
 

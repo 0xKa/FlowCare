@@ -171,7 +171,7 @@ public class SlotService(FlowCareDbContext db, IAuditLogService auditLog) : ISlo
 
         // Branch scoping for managers
         if (actorRole == nameof(UserRole.BranchManager) && branchId != actorBranchId)
-            return new PagedResponse<SlotDetailResponse>([], 0);
+            return PagedResponse<SlotDetailResponse>.Create([], 0, page, size);
 
         IQueryable<Slot> query;
         if (includeDeleted && actorRole == nameof(UserRole.Admin))
@@ -206,9 +206,11 @@ public class SlotService(FlowCareDbContext db, IAuditLogService auditLog) : ISlo
             .Take(size)
             .ToListAsync();
 
-        return new PagedResponse<SlotDetailResponse>(
+        return PagedResponse<SlotDetailResponse>.Create(
             [.. slots.Select(MapToDetail)],
-            total);
+            total,
+            page,
+            size);
     }
 
     private async Task<SlotDetailResponse> GetSlotDetailAsync(string slotId)
