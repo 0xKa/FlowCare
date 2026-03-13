@@ -57,4 +57,17 @@ public class BranchesController(IBranchService branchService) : ControllerBase
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Get live queue for a branch based on checked-in appointments ordered by slot start time.
+    /// </summary>
+    [HttpGet("{branchId}/queue")]
+    public async Task<ActionResult<LiveQueueResponse>> GetLiveQueue(string branchId)
+    {
+        var result = await branchService.GetLiveQueueAsync(branchId);
+        if (result is null)
+            return NotFound(new { error = "Branch not found." });
+
+        return Ok(result);
+    }
 }

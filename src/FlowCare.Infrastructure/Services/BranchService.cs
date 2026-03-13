@@ -137,6 +137,40 @@ public class BranchService(FlowCareDbContext db) : IBranchService
         return PagedResponse<SlotResponse>.Create(results, total, page, size);
     }
 
+    public async Task<LiveQueueResponse?> GetLiveQueueAsync(string branchId)
+    {
+        if (!await db.Branches.AnyAsync(b => b.Id == branchId && b.IsActive))
+            return null;
+
+        var checkedInAppointments = await db.Appointments
+            .AsNoTracking()
+            .Include(a => a.Customer)
+            .Include(a => a.ServiceType)
+            .Include(a => a.Slot)
+            .Where(a => a.BranchId == branchId && a.Status == AppointmentStatus.CheckedIn)
+            .OrderBy(a => a.Slot != null ? a.Slot.StartAt : DateTimeOffset.MaxValue)
+            .ThenBy(a => a.CreatedAt)
+            .ToListAsync();
+
+        var entries = checkedInAppointments
+            .Select((a, index) => new QueueEntryResponse(
+                index + 1,
+                a.Id,
+                a.CustomerId,
+                a.Customer?.FullName,
+                a.ServiceTypeId,
+                a.ServiceType?.Name,
+                a.SlotId,
+                a.Slot?.StartAt,
+                a.UpdatedAt ?? a.CreatedAt))
+            .ToList();
+
+        return new LiveQueueResponse(
+            branchId,
+            entries.Count,
+            entries);
+    }
+
     private static (int Page, int Size) NormalizePage(int page, int size)
     {
         var normalizedPage = page < 1 ? 1 : page;

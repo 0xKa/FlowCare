@@ -26,3 +26,19 @@ public record SlotResponse(
     DateTimeOffset EndAt,
     int Capacity,
     bool IsAvailable);
+
+public record QueueEntryResponse(
+    int QueueNumber,
+    string AppointmentId,
+    string CustomerId,
+    string? CustomerName,
+    string ServiceTypeId,
+    string? ServiceTypeName,
+    string? SlotId,
+    DateTimeOffset? SlotStartAt,
+    DateTimeOffset CheckedInAt);
+
+public record LiveQueueResponse(
+    string BranchId,
+    int TotalCheckedIn,
+    List<QueueEntryResponse> Entries);

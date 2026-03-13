@@ -13,4 +13,5 @@ public interface IBranchService
         int page,
         int size,
         string? term);
+    Task<LiveQueueResponse?> GetLiveQueueAsync(string branchId);
 }
