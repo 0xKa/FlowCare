@@ -40,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<IStaffManagementService, StaffManagementService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IAuditLogQueryService, AuditLogQueryService>();
+        services.AddScoped<IAdminMaintenanceService, AdminMaintenanceService>();
 
         return services;
     }
