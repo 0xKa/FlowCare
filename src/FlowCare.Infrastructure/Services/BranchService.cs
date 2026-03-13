@@ -8,36 +8,83 @@ namespace FlowCare.Infrastructure.Services;
 
 public class BranchService(FlowCareDbContext db) : IBranchService
 {
-    public async Task<List<BranchResponse>> ListBranchesAsync()
+    public async Task<PagedResponse<BranchResponse>> ListBranchesAsync(int page, int size, string? term)
     {
-        return await db.Branches
+        (page, size) = NormalizePage(page, size);
+
+        var query = db.Branches
             .AsNoTracking()
-            .Where(b => b.IsActive)
+            .Where(b => b.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var pattern = $"%{term.Trim()}%";
+            query = query.Where(b =>
+                EF.Functions.ILike(b.Name, pattern)
+                || EF.Functions.ILike(b.City, pattern)
+                || EF.Functions.ILike(b.Address, pattern)
+                || EF.Functions.ILike(b.Timezone, pattern));
+        }
+
+        var total = await query.CountAsync();
+        var results = await query
             .OrderBy(b => b.Name)
+            .Skip((page - 1) * size)
+            .Take(size)
             .Select(b => new BranchResponse(
                 b.Id, b.Name, b.City, b.Address, b.Timezone, b.IsActive))
             .ToListAsync();
+
+        return new PagedResponse<BranchResponse>(results, total);
     }
 
     /// <returns>null if the branch does not exist.</returns>
-    public async Task<List<ServiceTypeResponse>?> ListServicesAsync(string branchId)
+    public async Task<PagedResponse<ServiceTypeResponse>?> ListServicesAsync(
+        string branchId,
+        int page,
+        int size,
+        string? term)
     {
+        (page, size) = NormalizePage(page, size);
+
         if (!await db.Branches.AnyAsync(b => b.Id == branchId && b.IsActive))
             return null;
 
-        return await db.ServiceTypes
+        var query = db.ServiceTypes
             .AsNoTracking()
-            .Where(s => s.BranchId == branchId && s.IsActive)
+            .Where(s => s.BranchId == branchId && s.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var pattern = $"%{term.Trim()}%";
+            query = query.Where(s =>
+                EF.Functions.ILike(s.Name, pattern)
+                || EF.Functions.ILike(s.Description, pattern));
+        }
+
+        var total = await query.CountAsync();
+        var results = await query
             .OrderBy(s => s.Name)
+            .Skip((page - 1) * size)
+            .Take(size)
             .Select(s => new ServiceTypeResponse(
                 s.Id, s.BranchId, s.Name, s.Description, s.DurationMinutes, s.IsActive))
             .ToListAsync();
+
+        return new PagedResponse<ServiceTypeResponse>(results, total);
     }
 
     /// <returns>null if the branch or service type does not exist.</returns>
-    public async Task<List<SlotResponse>?> ListAvailableSlotsAsync(
-        string branchId, string serviceTypeId, DateOnly? date)
+    public async Task<PagedResponse<SlotResponse>?> ListAvailableSlotsAsync(
+        string branchId,
+        string serviceTypeId,
+        DateOnly? date,
+        int page,
+        int size,
+        string? term)
     {
+        (page, size) = NormalizePage(page, size);
+
         if (!await db.Branches.AnyAsync(b => b.Id == branchId && b.IsActive))
             return null;
 
@@ -58,11 +105,23 @@ public class BranchService(FlowCareDbContext db) : IBranchService
             query = query.Where(s => s.StartAt >= startOfDay && s.StartAt < endOfDay);
         }
 
-        return await query
-            .OrderBy(s => s.StartAt)
-            .Where(s => s.Appointments.Count(a =>
+        query = query.Where(s => s.Appointments.Count(a =>
                     a.Status != AppointmentStatus.Cancelled
-                    && a.Status != AppointmentStatus.Rescheduled) < s.Capacity)
+                    && a.Status != AppointmentStatus.Rescheduled) < s.Capacity);
+
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var pattern = $"%{term.Trim()}%";
+            query = query.Where(s =>
+                EF.Functions.ILike(s.Id, pattern)
+                || (s.Staff != null && EF.Functions.ILike(s.Staff.FullName, pattern)));
+        }
+
+        var total = await query.CountAsync();
+        var results = await query
+            .OrderBy(s => s.StartAt)
+            .Skip((page - 1) * size)
+            .Take(size)
             .Select(s => new SlotResponse(
                 s.Id,
                 s.BranchId,
@@ -74,5 +133,14 @@ public class BranchService(FlowCareDbContext db) : IBranchService
                 s.Capacity,
                 true))
             .ToListAsync();
+
+        return new PagedResponse<SlotResponse>(results, total);
+    }
+
+    private static (int Page, int Size) NormalizePage(int page, int size)
+    {
+        var normalizedPage = page < 1 ? 1 : page;
+        var normalizedSize = size < 1 ? 20 : (size > 200 ? 200 : size);
+        return (normalizedPage, normalizedSize);
     }
 }

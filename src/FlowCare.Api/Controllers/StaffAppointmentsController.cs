@@ -15,13 +15,16 @@ public class StaffAppointmentsController(
     IBranchAuthorizationService branchAuth) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<AppointmentResponse>>> ListAppointments()
+    public async Task<ActionResult<PagedResponse<AppointmentResponse>>> ListAppointments(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 20,
+        [FromQuery] string? term = null)
     {
         var role = branchAuth.GetRole(User);
         var userId = branchAuth.GetUserId(User);
         var branchId = branchAuth.GetBranchId(User);
 
-        return Ok(await appointmentService.ListAsync(role, userId, branchId));
+        return Ok(await appointmentService.ListAsync(role, userId, branchId, page, size, term));
     }
 
     [HttpGet("{id}")]

@@ -16,12 +16,15 @@ public class StaffController(
     /// List staff members. Admin: all. Manager: branch-only.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<StaffResponse>>> ListStaff()
+    public async Task<ActionResult<PagedResponse<StaffResponse>>> ListStaff(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 20,
+        [FromQuery] string? term = null)
     {
         var role = branchAuth.GetRole(User);
         var branchId = branchAuth.GetBranchId(User);
 
-        return Ok(await staffService.ListStaffAsync(role, branchId));
+        return Ok(await staffService.ListStaffAsync(role, branchId, page, size, term));
     }
 
     /// <summary>

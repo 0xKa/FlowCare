@@ -16,6 +16,12 @@ public interface ISlotService
     Task<(bool Success, string? Error)> SoftDeleteSlotAsync(
         string slotId, string actorId, string actorRole, string? actorBranchId);
 
-    Task<List<SlotDetailResponse>> ListSlotsAsync(
-        string branchId, string actorRole, string? actorBranchId, bool includeDeleted);
+    Task<PagedResponse<SlotDetailResponse>> ListSlotsAsync(
+        string branchId,
+        string actorRole,
+        string? actorBranchId,
+        bool includeDeleted,
+        int page,
+        int size,
+        string? term);
 }

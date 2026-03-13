@@ -9,8 +9,15 @@ namespace FlowCare.Infrastructure.Services;
 
 public class StaffManagementService(FlowCareDbContext db, IAuditLogService auditLog) : IStaffManagementService
 {
-    public async Task<List<StaffResponse>> ListStaffAsync(string actorRole, string? actorBranchId)
+    public async Task<PagedResponse<StaffResponse>> ListStaffAsync(
+        string actorRole,
+        string? actorBranchId,
+        int page,
+        int size,
+        string? term)
     {
+        (page, size) = NormalizePage(page, size);
+
         var query = db.Users
             .AsNoTracking()
             .Include(u => u.Branch)
@@ -20,9 +27,30 @@ public class StaffManagementService(FlowCareDbContext db, IAuditLogService audit
         if (actorRole == nameof(UserRole.BranchManager))
             query = query.Where(u => u.BranchId == actorBranchId);
 
-        var staff = await query.OrderBy(u => u.FullName).ToListAsync();
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var pattern = $"%{term.Trim()}%";
+            query = query.Where(u =>
+                EF.Functions.ILike(u.Id, pattern)
+                || EF.Functions.ILike(u.Username, pattern)
+                || EF.Functions.ILike(u.FullName, pattern)
+                || EF.Functions.ILike(u.Email, pattern)
+                || (u.Phone != null && EF.Functions.ILike(u.Phone, pattern))
+                || (u.Branch != null && EF.Functions.ILike(u.Branch.Name, pattern))
+                || EF.Functions.ILike(u.Role.ToString(), pattern));
+        }
 
-        return staff.Select(MapToStaffResponse).ToList();
+        var total = await query.CountAsync();
+
+        var staff = await query
+            .OrderBy(u => u.FullName)
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToListAsync();
+
+        return new PagedResponse<StaffResponse>(
+            staff.Select(MapToStaffResponse).ToList(),
+            total);
     }
 
     public async Task<(bool Success, string? Error)> AssignStaffToServicesAsync(
@@ -98,6 +126,13 @@ public class StaffManagementService(FlowCareDbContext db, IAuditLogService audit
             new { action = "unassigned", service_type_id = serviceTypeId });
 
         return (true, null);
+    }
+
+    private static (int Page, int Size) NormalizePage(int page, int size)
+    {
+        var normalizedPage = page < 1 ? 1 : page;
+        var normalizedSize = size < 1 ? 20 : (size > 200 ? 200 : size);
+        return (normalizedPage, normalizedSize);
     }
 
     private static StaffResponse MapToStaffResponse(User u) => new(

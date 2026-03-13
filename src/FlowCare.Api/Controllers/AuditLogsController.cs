@@ -17,12 +17,15 @@ public class AuditLogsController(
     /// List audit logs. Admin: all. Manager: branch-scoped.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<AuditLogResponse>>> ListAuditLogs()
+    public async Task<ActionResult<PagedResponse<AuditLogResponse>>> ListAuditLogs(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 20,
+        [FromQuery] string? term = null)
     {
         var role = branchAuth.GetRole(User);
         var branchId = branchAuth.GetBranchId(User);
 
-        return Ok(await auditLogQuery.ListAsync(role, branchId));
+        return Ok(await auditLogQuery.ListAsync(role, branchId, page, size, term));
     }
 
     /// <summary>

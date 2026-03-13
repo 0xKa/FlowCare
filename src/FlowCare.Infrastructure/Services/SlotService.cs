@@ -158,12 +158,20 @@ public class SlotService(FlowCareDbContext db, IAuditLogService auditLog) : ISlo
         return (true, null);
     }
 
-    public async Task<List<SlotDetailResponse>> ListSlotsAsync(
-        string branchId, string actorRole, string? actorBranchId, bool includeDeleted)
+    public async Task<PagedResponse<SlotDetailResponse>> ListSlotsAsync(
+        string branchId,
+        string actorRole,
+        string? actorBranchId,
+        bool includeDeleted,
+        int page,
+        int size,
+        string? term)
     {
+        (page, size) = NormalizePage(page, size);
+
         // Branch scoping for managers
         if (actorRole == nameof(UserRole.BranchManager) && branchId != actorBranchId)
-            return [];
+            return new PagedResponse<SlotDetailResponse>([], 0);
 
         IQueryable<Slot> query;
         if (includeDeleted && actorRole == nameof(UserRole.Admin))
@@ -177,15 +185,30 @@ public class SlotService(FlowCareDbContext db, IAuditLogService auditLog) : ISlo
             query = db.Slots.Where(s => s.BranchId == branchId);
         }
 
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var pattern = $"%{term.Trim()}%";
+            query = query.Where(s =>
+                EF.Functions.ILike(s.Id, pattern)
+                || EF.Functions.ILike(s.ServiceType.Name, pattern)
+                || (s.Staff != null && EF.Functions.ILike(s.Staff.FullName, pattern)));
+        }
+
+        var total = await query.CountAsync();
+
         var slots = await query
             .AsNoTracking()
             .Include(s => s.Branch)
             .Include(s => s.ServiceType)
             .Include(s => s.Staff)
             .OrderBy(s => s.StartAt)
+            .Skip((page - 1) * size)
+            .Take(size)
             .ToListAsync();
 
-        return [.. slots.Select(MapToDetail)];
+        return new PagedResponse<SlotDetailResponse>(
+            [.. slots.Select(MapToDetail)],
+            total);
     }
 
     private async Task<SlotDetailResponse> GetSlotDetailAsync(string slotId)
@@ -198,6 +221,13 @@ public class SlotService(FlowCareDbContext db, IAuditLogService auditLog) : ISlo
             .FirstAsync(s => s.Id == slotId);
 
         return MapToDetail(slot);
+    }
+
+    private static (int Page, int Size) NormalizePage(int page, int size)
+    {
+        var normalizedPage = page < 1 ? 1 : page;
+        var normalizedSize = size < 1 ? 20 : (size > 200 ? 200 : size);
+        return (normalizedPage, normalizedSize);
     }
 
     private static SlotDetailResponse MapToDetail(Slot s) => new(

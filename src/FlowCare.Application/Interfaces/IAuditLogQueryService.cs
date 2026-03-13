@@ -4,6 +4,11 @@ namespace FlowCare.Application.Interfaces;
 
 public interface IAuditLogQueryService
 {
-    Task<List<AuditLogResponse>> ListAsync(string actorRole, string? actorBranchId);
+    Task<PagedResponse<AuditLogResponse>> ListAsync(
+        string actorRole,
+        string? actorBranchId,
+        int page,
+        int size,
+        string? term);
     Task<Stream> ExportCsvAsync();
 }

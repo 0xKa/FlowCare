@@ -93,18 +93,42 @@ public class AppointmentService(
         }
     }
 
-    public async Task<List<AppointmentResponse>> ListByCustomerAsync(string customerId)
+    public async Task<PagedResponse<AppointmentResponse>> ListByCustomerAsync(
+        string customerId,
+        int page,
+        int size,
+        string? term)
     {
-        var appointments = await db.Appointments
+        (page, size) = NormalizePage(page, size);
+
+        var query = db.Appointments
             .AsNoTracking()
             .Include(a => a.Branch)
             .Include(a => a.ServiceType)
             .Include(a => a.Staff)
-            .Where(a => a.CustomerId == customerId)
+            .Where(a => a.CustomerId == customerId);
+
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var pattern = $"%{term.Trim()}%";
+            query = query.Where(a =>
+                EF.Functions.ILike(a.Id, pattern)
+                || EF.Functions.ILike(a.Status.ToString(), pattern)
+                || (a.Branch != null && EF.Functions.ILike(a.Branch.Name, pattern))
+                || (a.ServiceType != null && EF.Functions.ILike(a.ServiceType.Name, pattern))
+                || (a.Staff != null && EF.Functions.ILike(a.Staff.FullName, pattern)));
+        }
+
+        var total = await query.CountAsync();
+        var appointments = await query
             .OrderByDescending(a => a.CreatedAt)
+            .Skip((page - 1) * size)
+            .Take(size)
             .ToListAsync();
 
-        return [.. appointments.Select(MapToResponse)];
+        return new PagedResponse<AppointmentResponse>(
+            [.. appointments.Select(MapToResponse)],
+            total);
     }
 
     public async Task<AppointmentResponse?> GetByIdForCustomerAsync(string appointmentId, string customerId)
@@ -185,8 +209,16 @@ public class AppointmentService(
         return (await MapToResponseAsync(appointment), null);
     }
 
-    public async Task<List<AppointmentResponse>> ListAsync(string role, string userId, string? branchId)
+    public async Task<PagedResponse<AppointmentResponse>> ListAsync(
+        string role,
+        string userId,
+        string? branchId,
+        int page,
+        int size,
+        string? term)
     {
+        (page, size) = NormalizePage(page, size);
+
         var query = db.Appointments
             .AsNoTracking()
             .Include(a => a.Customer)
@@ -207,11 +239,29 @@ public class AppointmentService(
         }
         // else Admin sees all
 
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var pattern = $"%{term.Trim()}%";
+            query = query.Where(a =>
+                EF.Functions.ILike(a.Id, pattern)
+                || EF.Functions.ILike(a.Status.ToString(), pattern)
+                || (a.Customer != null && EF.Functions.ILike(a.Customer.FullName, pattern))
+                || (a.Branch != null && EF.Functions.ILike(a.Branch.Name, pattern))
+                || (a.ServiceType != null && EF.Functions.ILike(a.ServiceType.Name, pattern))
+                || (a.Staff != null && EF.Functions.ILike(a.Staff.FullName, pattern)));
+        }
+
+        var total = await query.CountAsync();
+
         var appointments = await query
             .OrderByDescending(a => a.CreatedAt)
+            .Skip((page - 1) * size)
+            .Take(size)
             .ToListAsync();
 
-        return [.. appointments.Select(MapToResponse)];
+        return new PagedResponse<AppointmentResponse>(
+            [.. appointments.Select(MapToResponse)],
+            total);
     }
 
     public async Task<AppointmentResponse?> GetByIdAsync(string appointmentId)
@@ -270,6 +320,13 @@ public class AppointmentService(
             .FirstAsync(a => a.Id == appointment.Id);
 
         return MapToResponse(loaded);
+    }
+
+    private static (int Page, int Size) NormalizePage(int page, int size)
+    {
+        var normalizedPage = page < 1 ? 1 : page;
+        var normalizedSize = size < 1 ? 20 : (size > 200 ? 200 : size);
+        return (normalizedPage, normalizedSize);
     }
 
     private static AppointmentResponse MapToResponse(Appointment a) => new(

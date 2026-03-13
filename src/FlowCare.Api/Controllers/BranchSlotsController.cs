@@ -17,13 +17,24 @@ public class BranchSlotsController(
     /// List all slots for a branch. Admin can include soft-deleted slots with ?includeDeleted=true.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<SlotDetailResponse>>> ListSlots(
-        string branchId, [FromQuery] bool includeDeleted = false)
+    public async Task<ActionResult<PagedResponse<SlotDetailResponse>>> ListSlots(
+        string branchId,
+        [FromQuery] bool includeDeleted = false,
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 20,
+        [FromQuery] string? term = null)
     {
         var role = branchAuth.GetRole(User);
         var actorBranchId = branchAuth.GetBranchId(User);
 
-        return Ok(await slotService.ListSlotsAsync(branchId, role, actorBranchId, includeDeleted));
+        return Ok(await slotService.ListSlotsAsync(
+            branchId,
+            role,
+            actorBranchId,
+            includeDeleted,
+            page,
+            size,
+            term));
     }
 
     /// <summary>

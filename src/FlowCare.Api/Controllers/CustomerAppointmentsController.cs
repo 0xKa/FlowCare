@@ -62,10 +62,13 @@ public class CustomerAppointmentsController(
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<AppointmentResponse>>> ListMyAppointments()
+    public async Task<ActionResult<PagedResponse<AppointmentResponse>>> ListMyAppointments(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 20,
+        [FromQuery] string? term = null)
     {
         var customerId = branchAuth.GetUserId(User);
-        return Ok(await appointmentService.ListByCustomerAsync(customerId));
+        return Ok(await appointmentService.ListByCustomerAsync(customerId, page, size, term));
     }
 
     [HttpGet("{id}")]

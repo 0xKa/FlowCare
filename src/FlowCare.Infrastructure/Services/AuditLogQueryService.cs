@@ -12,8 +12,15 @@ namespace FlowCare.Infrastructure.Services;
 
 public class AuditLogQueryService(FlowCareDbContext db) : IAuditLogQueryService
 {
-    public async Task<List<AuditLogResponse>> ListAsync(string actorRole, string? actorBranchId)
+    public async Task<PagedResponse<AuditLogResponse>> ListAsync(
+        string actorRole,
+        string? actorBranchId,
+        int page,
+        int size,
+        string? term)
     {
+        (page, size) = NormalizePage(page, size);
+
         var query = db.AuditLogs.AsNoTracking().AsQueryable();
 
         if (actorRole == nameof(UserRole.BranchManager) && actorBranchId is not null)
@@ -24,11 +31,30 @@ public class AuditLogQueryService(FlowCareDbContext db) : IAuditLogQueryService
             query = query.Where(a => branchEntityIds.Contains(a.EntityId));
         }
 
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var pattern = $"%{term.Trim()}%";
+            query = query.Where(a =>
+                EF.Functions.ILike(a.Id, pattern)
+                || EF.Functions.ILike(a.ActorId, pattern)
+                || EF.Functions.ILike(a.ActorRole, pattern)
+                || EF.Functions.ILike(a.ActionType, pattern)
+                || EF.Functions.ILike(a.EntityType, pattern)
+                || EF.Functions.ILike(a.EntityId, pattern)
+                || (a.Metadata != null && EF.Functions.ILike(a.Metadata, pattern)));
+        }
+
+        var total = await query.CountAsync();
+
         var logs = await query
             .OrderByDescending(a => a.Timestamp)
+            .Skip((page - 1) * size)
+            .Take(size)
             .ToListAsync();
 
-        return [.. logs.Select(MapToResponse)];
+        return new PagedResponse<AuditLogResponse>(
+            [.. logs.Select(MapToResponse)],
+            total);
     }
 
     public async Task<Stream> ExportCsvAsync()
@@ -117,4 +143,11 @@ public class AuditLogQueryService(FlowCareDbContext db) : IAuditLogQueryService
         a.EntityId,
         a.Timestamp,
         a.Metadata);
+
+    private static (int Page, int Size) NormalizePage(int page, int size)
+    {
+        var normalizedPage = page < 1 ? 1 : page;
+        var normalizedSize = size < 1 ? 20 : (size > 200 ? 200 : size);
+        return (normalizedPage, normalizedSize);
+    }
 }

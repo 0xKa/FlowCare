@@ -14,9 +14,12 @@ public class CustomersController(ICustomerService customerService) : ControllerB
     /// List all customers.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<CustomerResponse>>> ListCustomers()
+    public async Task<ActionResult<PagedResponse<CustomerResponse>>> ListCustomers(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 20,
+        [FromQuery] string? term = null)
     {
-        return Ok(await customerService.ListCustomersAsync());
+        return Ok(await customerService.ListCustomersAsync(page, size, term));
     }
 
     /// <summary>

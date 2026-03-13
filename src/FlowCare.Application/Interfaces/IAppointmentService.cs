@@ -7,14 +7,24 @@ public interface IAppointmentService
     // Customer operations
     Task<(AppointmentResponse? Result, string? Error)> BookAsync(
         string customerId, BookAppointmentRequest request, Stream? attachment, string? attachmentFileName);
-    Task<List<AppointmentResponse>> ListByCustomerAsync(string customerId);
+    Task<PagedResponse<AppointmentResponse>> ListByCustomerAsync(
+        string customerId,
+        int page,
+        int size,
+        string? term);
     Task<AppointmentResponse?> GetByIdForCustomerAsync(string appointmentId, string customerId);
     Task<(bool Success, string? Error)> CancelAsync(string appointmentId, string customerId, string actorRole);
     Task<(AppointmentResponse? Result, string? Error)> RescheduleAsync(
         string appointmentId, string customerId, string newSlotId, string actorRole);
 
     // Staff / Manager / Admin listing
-    Task<List<AppointmentResponse>> ListAsync(string role, string userId, string? branchId);
+    Task<PagedResponse<AppointmentResponse>> ListAsync(
+        string role,
+        string userId,
+        string? branchId,
+        int page,
+        int size,
+        string? term);
     Task<AppointmentResponse?> GetByIdAsync(string appointmentId);
 
     // Status update (staff+)
