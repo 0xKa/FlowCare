@@ -2,8 +2,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FlowCare.Application.DTOs;
 
-public record UpdateRetentionPeriodRequest(
-    [property: Range(0, 3650)] int Days);
+public record UpdateRetentionPeriodRequest
+{
+    [Required]
+    [Range(0, int.MaxValue)]
+    public int? Days { get; init; }
+}
 
 public record SoftDeleteSettingsResponse(
     int RetentionDays);
