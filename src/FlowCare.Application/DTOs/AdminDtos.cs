@@ -9,9 +9,24 @@ public record UpdateRetentionPeriodRequest
     public int? Days { get; init; }
 }
 
-public record SoftDeleteSettingsResponse(
-    int RetentionDays);
+public record SoftDeleteSettingsResponse
+{
+    public int RetentionDays { get; init; }
 
-public record CleanupResultResponse(
-    int DeletedSlots,
-    int UpdatedAppointments);
+    public SoftDeleteSettingsResponse(int retentionDays)
+    {
+        RetentionDays = retentionDays;
+    }
+}
+
+public record CleanupResultResponse
+{
+    public int DeletedSlots { get; init; }
+    public int UpdatedAppointments { get; init; }
+
+    public CleanupResultResponse(int deletedSlots, int updatedAppointments)
+    {
+        DeletedSlots = deletedSlots;
+        UpdatedAppointments = updatedAppointments;
+    }
+}

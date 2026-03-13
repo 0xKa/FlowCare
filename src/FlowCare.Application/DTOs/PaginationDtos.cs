@@ -1,18 +1,42 @@
 namespace FlowCare.Application.DTOs;
 
-public record PaginationMetadata(
-    int TotalCount,
-    int TotalPages,
-    int CurrentPage,
-    int PageSize,
-    bool HasPreviousPage,
-    bool HasNextPage);
-
-public record PagedResponse<T>(
-    List<T> Data,
-    PaginationMetadata Meta)
+public record PaginationMetadata
 {
-    // static factory method to create a paged response
+    public int TotalCount { get; init; }
+    public int TotalPages { get; init; }
+    public int CurrentPage { get; init; }
+    public int PageSize { get; init; }
+    public bool HasPreviousPage { get; init; }
+    public bool HasNextPage { get; init; }
+
+    public PaginationMetadata(
+        int totalCount,
+        int totalPages,
+        int currentPage,
+        int pageSize,
+        bool hasPreviousPage,
+        bool hasNextPage)
+    {
+        TotalCount = totalCount;
+        TotalPages = totalPages;
+        CurrentPage = currentPage;
+        PageSize = pageSize;
+        HasPreviousPage = hasPreviousPage;
+        HasNextPage = hasNextPage;
+    }
+}
+
+public record PagedResponse<T>
+{
+    public List<T> Data { get; init; }
+    public PaginationMetadata Meta { get; init; }
+
+    public PagedResponse(List<T> data, PaginationMetadata meta)
+    {
+        Data = data;
+        Meta = meta;
+    }
+
     public static PagedResponse<T> Create(List<T> data, int totalCount, int currentPage, int pageSize)
     {
         var normalizedPageSize = pageSize < 1 ? 1 : pageSize;
