@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FlowCare.Application.DTOs;
 
 public record StaffResponse(
@@ -13,4 +15,6 @@ public record StaffResponse(
     List<string> AssignedServiceTypeIds);
 
 public record AssignStaffServicesRequest(
+    [property: Required]
+    [property: MinLength(1)]
     List<string> ServiceTypeIds);
