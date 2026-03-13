@@ -39,7 +39,7 @@ public static class DependencyInjection
         services.AddScoped<ISlotService, SlotService>();
         services.AddScoped<IStaffManagementService, StaffManagementService>();
         services.AddScoped<ICustomerService, CustomerService>();
-        // services.AddScoped<IAuditLogQueryService, AuditLogQueryService>();
+        services.AddScoped<IAuditLogQueryService, AuditLogQueryService>();
 
         return services;
     }
