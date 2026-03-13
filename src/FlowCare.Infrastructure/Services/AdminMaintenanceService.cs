@@ -43,11 +43,13 @@ public class AdminMaintenanceService(
         string actorRole)
     {
         var retentionDays = await GetRetentionDaysAsync();
-        var threshold = DateTimeOffset.UtcNow.AddDays(-retentionDays);
+        // Treating retention as whole calendar days rather than exact timestamps. This prevents eligible rows from being skipped due to time-of-day differences.
+        var utcToday = DateTimeOffset.UtcNow.Date;
+        var thresholdExclusive = new DateTimeOffset(utcToday.AddDays(-retentionDays + 1), TimeSpan.Zero);
 
         var slotsToDelete = await db.Slots
             .IgnoreQueryFilters()
-            .Where(s => s.DeletedAt != null && s.DeletedAt <= threshold)
+            .Where(s => s.DeletedAt != null && s.DeletedAt < thresholdExclusive) // Only hard delete slots that were soft-deleted before the threshold (retation period has fully passed)
             .ToListAsync();
 
         if (slotsToDelete.Count == 0)
