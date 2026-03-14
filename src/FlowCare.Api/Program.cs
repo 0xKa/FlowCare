@@ -2,6 +2,7 @@ using FlowCare.Api.Startup;
 using FlowCare.Application.Interfaces;
 using FlowCare.Infrastructure;
 using FlowCare.Infrastructure.Data;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -23,7 +24,10 @@ using (var scope = app.Services.CreateScope())
     var seedPath = builder.Configuration["SeedDataPath"];
     if (!string.IsNullOrEmpty(seedPath))
     {
-        var fullPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", seedPath);
+        var fullPath = Path.IsPathRooted(seedPath)
+            ? seedPath
+            : Path.Combine(app.Environment.ContentRootPath, seedPath);
+
         if (File.Exists(fullPath))
         {
             var auditLogService = scope.ServiceProvider.GetRequiredService<IAuditLogService>();
@@ -31,7 +35,10 @@ using (var scope = app.Services.CreateScope())
             await seeder.ImportAsync(fullPath);
         }
         else
-            app.Logger.LogWarning("Seed data file not found at {Path}", fullPath);
+            app.Logger.LogWarning(
+                "Seed data file not found at configured path: {Path}. Set SeedDataPath to an absolute path or a path relative to content root {ContentRoot}.",
+                fullPath,
+                app.Environment.ContentRootPath);
     }
 }
 
@@ -74,7 +81,13 @@ if (!app.Environment.IsDevelopment() && enableApiDocsInProduction)
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-app.UseHttpsRedirection();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+if (app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
