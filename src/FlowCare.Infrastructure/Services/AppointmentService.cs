@@ -84,7 +84,7 @@ public class AppointmentService(
             await db.SaveChangesAsync();
 
             await auditLog.LogAsync(customerId, nameof(UserRole.Customer),
-                "APPOINTMENT_BOOKED", "APPOINTMENT", appointment.Id,
+                AuditActionType.AppointmentBooked, "APPOINTMENT", appointment.Id,
                 new { slot_id = request.SlotId, branch_id = request.BranchId, service_type_id = request.ServiceTypeId });
 
             return (await MapToResponseAsync(appointment), null);
@@ -106,7 +106,7 @@ public class AppointmentService(
             await db.SaveChangesAsync();
 
             await auditLog.LogAsync(customerId, nameof(UserRole.Customer),
-                "APPOINTMENT_BOOKED", "APPOINTMENT", appointment.Id,
+                AuditActionType.AppointmentBooked, "APPOINTMENT", appointment.Id,
                 new { slot_id = request.SlotId, branch_id = request.BranchId, service_type_id = request.ServiceTypeId });
 
             return (await MapToResponseAsync(appointment), null);
@@ -182,7 +182,7 @@ public class AppointmentService(
         await db.SaveChangesAsync();
 
         await auditLog.LogAsync(customerId, actorRole,
-            "APPOINTMENT_CANCELLED", "APPOINTMENT", appointmentId,
+            AuditActionType.AppointmentCancelled, "APPOINTMENT", appointmentId,
             new { previous_status = appointment.Status.ToString() });
 
         return (true, null);
@@ -196,9 +196,10 @@ public class AppointmentService(
             DefaultMaxReschedulesPerAppointment,
             minValue: 0);
 
+        var rescheduledAction = AuditActionType.AppointmentRescheduled.ToStorageMessage();
         var currentReschedulesCount = await db.AuditLogs
             .AsNoTracking()
-            .CountAsync(a => a.ActionType == "APPOINTMENT_RESCHEDULED" && a.EntityId == appointmentId);
+            .CountAsync(a => a.ActionType == rescheduledAction && a.EntityId == appointmentId);
 
         if (currentReschedulesCount >= maxReschedulesPerAppointment)
             return (null, $"Reschedule limit reached. Max {maxReschedulesPerAppointment} reschedules per appointment.");
@@ -237,7 +238,7 @@ public class AppointmentService(
         await db.SaveChangesAsync();
 
         await auditLog.LogAsync(customerId, actorRole,
-            "APPOINTMENT_RESCHEDULED", "APPOINTMENT", appointmentId,
+            AuditActionType.AppointmentRescheduled, "APPOINTMENT", appointmentId,
             new { old_slot_id = oldSlotId, new_slot_id = newSlotId });
 
         return (await MapToResponseAsync(appointment), null);
@@ -338,7 +339,7 @@ public class AppointmentService(
         await db.SaveChangesAsync();
 
         await auditLog.LogAsync(actorId, actorRole,
-            "APPOINTMENT_STATUS_UPDATED", "APPOINTMENT", appointmentId,
+            AuditActionType.AppointmentStatusUpdated, "APPOINTMENT", appointmentId,
             new { previous_status = previousStatus, new_status = newStatus });
 
         return (true, null);

@@ -1,13 +1,14 @@
 using System.Text.Json;
 using FlowCare.Application.Interfaces;
 using FlowCare.Domain.Entities;
+using FlowCare.Domain.Enums;
 using FlowCare.Infrastructure.Data;
 
 namespace FlowCare.Infrastructure.Services;
 
 public class AuditLogService(FlowCareDbContext db) : IAuditLogService
 {
-    public async Task LogAsync(string actorId, string actorRole, string actionType,
+    public async Task LogAsync(string actorId, string actorRole, AuditActionType actionType,
         string entityType, string entityId, object? metadata = null)
     {
         var auditLog = new AuditLog
@@ -15,7 +16,7 @@ public class AuditLogService(FlowCareDbContext db) : IAuditLogService
             Id = GenerateId(),
             ActorId = actorId,
             ActorRole = actorRole,
-            ActionType = actionType,
+            ActionType = actionType.ToStorageMessage(),
             EntityType = entityType,
             EntityId = entityId,
             Timestamp = DateTimeOffset.UtcNow,

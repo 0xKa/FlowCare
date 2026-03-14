@@ -82,7 +82,7 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.AuditLog", b =>
@@ -134,7 +134,7 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("Timestamp");
 
-                    b.ToTable("AuditLogs");
+                    b.ToTable("AuditLogs", (string)null);
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.Branch", b =>
@@ -174,7 +174,7 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Branches");
+                    b.ToTable("Branches", (string)null);
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.ServiceType", b =>
@@ -214,7 +214,7 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.ToTable("ServiceTypes");
+                    b.ToTable("ServiceTypes", (string)null);
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.Slot", b =>
@@ -266,7 +266,7 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.ToTable("Slots");
+                    b.ToTable("Slots", (string)null);
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.StaffServiceType", b =>
@@ -281,7 +281,7 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasIndex("ServiceTypeId");
 
-                    b.ToTable("StaffServiceTypes");
+                    b.ToTable("StaffServiceTypes", (string)null);
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.SystemSetting", b =>
@@ -297,7 +297,7 @@ namespace FlowCare.Infrastructure.Migrations
 
                     b.HasKey("Key");
 
-                    b.ToTable("SystemSettings");
+                    b.ToTable("SystemSettings", (string)null);
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.User", b =>
@@ -362,7 +362,7 @@ namespace FlowCare.Infrastructure.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("FlowCare.Domain.Entities.Appointment", b =>

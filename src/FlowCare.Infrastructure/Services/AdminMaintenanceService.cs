@@ -1,5 +1,6 @@
 using FlowCare.Application.DTOs;
 using FlowCare.Application.Interfaces;
+using FlowCare.Domain.Enums;
 using FlowCare.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,7 +36,7 @@ public class AdminMaintenanceService(
         await db.SaveChangesAsync();
 
         await auditLog.LogAsync(actorId, actorRole,
-            "RETENTION_PERIOD_UPDATED", "SYSTEM_SETTING", RetentionSettingKey,
+            AuditActionType.RetentionPeriodUpdated, "SYSTEM_SETTING", RetentionSettingKey,
             new { retention_days = days });
 
         return new SoftDeleteSettingsResponse(days);
@@ -73,7 +74,7 @@ public class AdminMaintenanceService(
         foreach (var slot in slotsToDelete)
         {
             await auditLog.LogAsync(actorId, actorRole,
-                "HARD_DELETE", "SLOT", slot.Id,
+                AuditActionType.HardDelete, "SLOT", slot.Id,
                 new
                 {
                     deleted_at = slot.DeletedAt,
@@ -98,7 +99,7 @@ public class AdminMaintenanceService(
         await auditLog.LogAsync(
             actorId,
             actorRole,
-            "RATE_LIMITS_UPDATED",
+            AuditActionType.RateLimitsUpdated,
             "SYSTEM_SETTING",
             "RATE_LIMITS",
             new
@@ -121,7 +122,7 @@ public class AdminMaintenanceService(
         await auditLog.LogAsync(
             actorId,
             actorRole,
-            "CLEANUP_WORKER_TOGGLED",
+            AuditActionType.CleanupWorkerToggled,
             "SYSTEM_SETTING",
             CleanupWorkerEnabledKey,
             new { enabled });
