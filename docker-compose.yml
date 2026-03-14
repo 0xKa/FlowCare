@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: flowcare-postgres
+    environment:
+      POSTGRES_DB: FlowCareDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - flowcare-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d FlowCareDb"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flowcare-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Database=FlowCareDb;Username=postgres;Password=postgres
+      SeedDataPath: /app/seed/example.json
+      FileStorage__BasePath: /app/uploads
+      CleanupWorker__Enabled: "true"
+      CleanupWorker__IntervalMinutes: "60"
+      ApiDocs__EnableInProduction: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - flowcare-api-uploads:/app/uploads
+      - ./src/FlowCare.Infrastructure/Data/Seed/example.json:/app/seed/example.json:ro
+
+volumes:
+  flowcare-postgres-data:
+  flowcare-api-uploads:
