@@ -22,6 +22,28 @@ public class SeedDataImporter(FlowCareDbContext db)
         await SeedAppointmentsAsync(seedData.Appointments);
         await SeedAuditLogsAsync(seedData.AuditLogs);
         await SeedSystemSettingsAsync();
+        await LogSystemSeedImportAsync(filePath);
+
+        await db.SaveChangesAsync();
+    }
+
+    private async Task LogSystemSeedImportAsync(string filePath)
+    {
+        db.AuditLogs.Add(new AuditLog
+        {
+            Id = $"aud_{Guid.NewGuid():N}",
+            ActorId = "system",
+            ActorRole = "System",
+            ActionType = AuditActionType.SeedImported.ToStorageMessage(),
+            EntityType = "SEED",
+            EntityId = Path.GetFileNameWithoutExtension(filePath),
+            Timestamp = DateTimeOffset.UtcNow,
+            Metadata = JsonSerializer.Serialize(new
+            {
+                message = "Initial seed import executed",
+                file_name = Path.GetFileName(filePath)
+            })
+        });
 
         await db.SaveChangesAsync();
     }

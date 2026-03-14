@@ -2,6 +2,7 @@ namespace FlowCare.Domain.Enums;
 
 public enum AuditActionType
 {
+    SeedImported,
     AppointmentBooked,
     AppointmentCancelled,
     AppointmentRescheduled,
@@ -20,6 +21,7 @@ public static class AuditActionTypeExtensions
 {
     public static string ToStorageMessage(this AuditActionType actionType) => actionType switch
     {
+        AuditActionType.SeedImported => "SEED_IMPORTED",
         AuditActionType.AppointmentBooked => "APPOINTMENT_BOOKED",
         AuditActionType.AppointmentCancelled => "APPOINTMENT_CANCELLED",
         AuditActionType.AppointmentRescheduled => "APPOINTMENT_RESCHEDULED",
