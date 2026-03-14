@@ -51,7 +51,7 @@ public class SlotService(FlowCareDbContext db, IAuditLogService auditLog) : ISlo
         db.Slots.Add(slot);
         await db.SaveChangesAsync();
 
-        await auditLog.LogAsync(actorId, actorRole, AuditActionType.SlotCreated, "SLOT", slot.Id,
+        await auditLog.LogAsync(actorId, actorRole, AuditActionType.SlotCreated, AuditEntityType.Slot, slot.Id,
             new { branch_id = branchId, service_type_id = request.ServiceTypeId });
 
         return (await GetSlotDetailAsync(slot.Id), null);
@@ -127,7 +127,7 @@ public class SlotService(FlowCareDbContext db, IAuditLogService auditLog) : ISlo
 
         await db.SaveChangesAsync();
 
-        await auditLog.LogAsync(actorId, actorRole, AuditActionType.SlotUpdated, "SLOT", slotId, null);
+        await auditLog.LogAsync(actorId, actorRole, AuditActionType.SlotUpdated, AuditEntityType.Slot, slotId, null);
 
         return (await GetSlotDetailAsync(slot.Id), null);
     }
@@ -152,7 +152,7 @@ public class SlotService(FlowCareDbContext db, IAuditLogService auditLog) : ISlo
         slot.IsActive = false;
         await db.SaveChangesAsync();
 
-        await auditLog.LogAsync(actorId, actorRole, AuditActionType.SlotDeleted, "SLOT", slotId,
+        await auditLog.LogAsync(actorId, actorRole, AuditActionType.SlotDeleted, AuditEntityType.Slot, slotId,
             new { branch_id = slot.BranchId });
 
         return (true, null);

@@ -97,7 +97,7 @@ public class StaffManagementService(FlowCareDbContext db, IAuditLogService audit
         if (added.Count > 0)
         {
             await db.SaveChangesAsync();
-            await auditLog.LogAsync(actorId, actorRole, AuditActionType.StaffAssignmentChanged, "USER", staffId,
+            await auditLog.LogAsync(actorId, actorRole, AuditActionType.StaffAssignmentChanged, AuditEntityType.User, staffId,
                 new { action = "assigned", service_type_ids = added });
         }
 
@@ -124,7 +124,7 @@ public class StaffManagementService(FlowCareDbContext db, IAuditLogService audit
         db.StaffServiceTypes.Remove(assignment);
         await db.SaveChangesAsync();
 
-        await auditLog.LogAsync(actorId, actorRole, AuditActionType.StaffAssignmentChanged, "USER", staffId,
+        await auditLog.LogAsync(actorId, actorRole, AuditActionType.StaffAssignmentChanged, AuditEntityType.User, staffId,
             new { action = "unassigned", service_type_id = serviceTypeId });
 
         return (true, null);

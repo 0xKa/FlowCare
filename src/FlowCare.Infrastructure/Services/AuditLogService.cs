@@ -9,7 +9,7 @@ namespace FlowCare.Infrastructure.Services;
 public class AuditLogService(FlowCareDbContext db) : IAuditLogService
 {
     public async Task LogAsync(string actorId, string actorRole, AuditActionType actionType,
-        string entityType, string entityId, object? metadata = null)
+        AuditEntityType entityType, string entityId, object? metadata = null)
     {
         var auditLog = new AuditLog
         {
@@ -17,7 +17,7 @@ public class AuditLogService(FlowCareDbContext db) : IAuditLogService
             ActorId = actorId,
             ActorRole = actorRole,
             ActionType = actionType.ToStorageMessage(),
-            EntityType = entityType,
+            EntityType = entityType.ToStorageMessage(),
             EntityId = entityId,
             Timestamp = DateTimeOffset.UtcNow,
             Metadata = metadata is not null ? JsonSerializer.Serialize(metadata) : null

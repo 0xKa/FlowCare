@@ -84,7 +84,7 @@ public class AppointmentService(
             await db.SaveChangesAsync();
 
             await auditLog.LogAsync(customerId, nameof(UserRole.Customer),
-                AuditActionType.AppointmentBooked, "APPOINTMENT", appointment.Id,
+                AuditActionType.AppointmentBooked, AuditEntityType.Appointment, appointment.Id,
                 new { slot_id = request.SlotId, branch_id = request.BranchId, service_type_id = request.ServiceTypeId });
 
             return (await MapToResponseAsync(appointment), null);
@@ -106,7 +106,7 @@ public class AppointmentService(
             await db.SaveChangesAsync();
 
             await auditLog.LogAsync(customerId, nameof(UserRole.Customer),
-                AuditActionType.AppointmentBooked, "APPOINTMENT", appointment.Id,
+                AuditActionType.AppointmentBooked, AuditEntityType.Appointment, appointment.Id,
                 new { slot_id = request.SlotId, branch_id = request.BranchId, service_type_id = request.ServiceTypeId });
 
             return (await MapToResponseAsync(appointment), null);
@@ -182,7 +182,7 @@ public class AppointmentService(
         await db.SaveChangesAsync();
 
         await auditLog.LogAsync(customerId, actorRole,
-            AuditActionType.AppointmentCancelled, "APPOINTMENT", appointmentId,
+            AuditActionType.AppointmentCancelled, AuditEntityType.Appointment, appointmentId,
             new { previous_status = appointment.Status.ToString() });
 
         return (true, null);
@@ -238,7 +238,7 @@ public class AppointmentService(
         await db.SaveChangesAsync();
 
         await auditLog.LogAsync(customerId, actorRole,
-            AuditActionType.AppointmentRescheduled, "APPOINTMENT", appointmentId,
+            AuditActionType.AppointmentRescheduled, AuditEntityType.Appointment, appointmentId,
             new { old_slot_id = oldSlotId, new_slot_id = newSlotId });
 
         return (await MapToResponseAsync(appointment), null);
@@ -339,7 +339,7 @@ public class AppointmentService(
         await db.SaveChangesAsync();
 
         await auditLog.LogAsync(actorId, actorRole,
-            AuditActionType.AppointmentStatusUpdated, "APPOINTMENT", appointmentId,
+            AuditActionType.AppointmentStatusUpdated, AuditEntityType.Appointment, appointmentId,
             new { previous_status = previousStatus, new_status = newStatus });
 
         return (true, null);

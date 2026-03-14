@@ -36,7 +36,7 @@ public class AdminMaintenanceService(
         await db.SaveChangesAsync();
 
         await auditLog.LogAsync(actorId, actorRole,
-            AuditActionType.RetentionPeriodUpdated, "SYSTEM_SETTING", RetentionSettingKey,
+            AuditActionType.RetentionPeriodUpdated, AuditEntityType.SystemSetting, RetentionSettingKey,
             new { retention_days = days });
 
         return new SoftDeleteSettingsResponse(days);
@@ -74,7 +74,7 @@ public class AdminMaintenanceService(
         foreach (var slot in slotsToDelete)
         {
             await auditLog.LogAsync(actorId, actorRole,
-                AuditActionType.HardDelete, "SLOT", slot.Id,
+                AuditActionType.HardDelete, AuditEntityType.Slot, slot.Id,
                 new
                 {
                     deleted_at = slot.DeletedAt,
@@ -100,7 +100,7 @@ public class AdminMaintenanceService(
             actorId,
             actorRole,
             AuditActionType.RateLimitsUpdated,
-            "SYSTEM_SETTING",
+            AuditEntityType.SystemSetting,
             "RATE_LIMITS",
             new
             {
@@ -123,7 +123,7 @@ public class AdminMaintenanceService(
             actorId,
             actorRole,
             AuditActionType.CleanupWorkerToggled,
-            "SYSTEM_SETTING",
+            AuditEntityType.SystemSetting,
             CleanupWorkerEnabledKey,
             new { enabled });
 
