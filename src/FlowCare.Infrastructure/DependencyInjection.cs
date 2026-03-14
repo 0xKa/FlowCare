@@ -41,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IAuditLogQueryService, AuditLogQueryService>();
         services.AddScoped<IAdminMaintenanceService, AdminMaintenanceService>();
+
         services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 
         return services;
