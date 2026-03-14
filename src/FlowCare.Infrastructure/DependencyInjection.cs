@@ -1,6 +1,7 @@
 using FlowCare.Application.Interfaces;
 using FlowCare.Domain.Enums;
 using FlowCare.Infrastructure.Auth;
+using FlowCare.Infrastructure.BackgroundJobs;
 using FlowCare.Infrastructure.Data;
 using FlowCare.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;

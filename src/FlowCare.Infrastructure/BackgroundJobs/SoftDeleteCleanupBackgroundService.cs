@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using FlowCare.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlowCare.Infrastructure.Services;
+namespace FlowCare.Infrastructure.BackgroundJobs;
 
 public class SoftDeleteCleanupBackgroundService(
     IServiceScopeFactory scopeFactory,
