@@ -1,4 +1,5 @@
 using FlowCare.Api.Startup;
+using FlowCare.Application.Interfaces;
 using FlowCare.Infrastructure;
 using FlowCare.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,8 @@ using (var scope = app.Services.CreateScope())
         var fullPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", seedPath);
         if (File.Exists(fullPath))
         {
-            var seeder = new SeedDataImporter(db);
+            var auditLogService = scope.ServiceProvider.GetRequiredService<IAuditLogService>();
+            var seeder = new SeedDataImporter(db, auditLogService);
             await seeder.ImportAsync(fullPath);
         }
         else

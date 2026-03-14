@@ -2,6 +2,7 @@ namespace FlowCare.Domain.Enums;
 
 public enum AuditEntityType
 {
+    Seed,
     Appointment,
     Slot,
     User,
@@ -12,6 +13,7 @@ public static class AuditEntityTypeExtensions
 {
     public static string ToStorageMessage(this AuditEntityType entityType) => entityType switch
     {
+        AuditEntityType.Seed => "SEED",
         AuditEntityType.Appointment => "APPOINTMENT",
         AuditEntityType.Slot => "SLOT",
         AuditEntityType.User => "USER",
