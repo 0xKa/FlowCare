@@ -53,3 +53,19 @@ public record RateLimitSettingsResponse
         MaxReschedulesPerAppointment = maxReschedulesPerAppointment;
     }
 }
+
+public record UpdateCleanupWorkerRequest
+{
+    [Required]
+    public bool? Enabled { get; init; }
+}
+
+public record CleanupWorkerSettingsResponse
+{
+    public bool Enabled { get; init; }
+
+    public CleanupWorkerSettingsResponse(bool enabled)
+    {
+        Enabled = enabled;
+    }
+}

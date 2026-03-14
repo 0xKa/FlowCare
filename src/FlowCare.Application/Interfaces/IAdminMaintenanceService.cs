@@ -18,4 +18,9 @@ public interface IAdminMaintenanceService
         int maxReschedulesPerAppointment,
         string actorId,
         string actorRole);
+
+    Task<CleanupWorkerSettingsResponse> SetCleanupWorkerEnabledAsync(
+        bool enabled,
+        string actorId,
+        string actorRole);
 }

@@ -40,4 +40,19 @@ public class SettingsController(
 
         return Ok(result);
     }
+
+    [HttpPut("cleanup-worker")]
+    public async Task<ActionResult<CleanupWorkerSettingsResponse>> UpdateCleanupWorker(
+        [FromBody] UpdateCleanupWorkerRequest request)
+    {
+        var actorId = branchAuth.GetUserId(User);
+        var actorRole = branchAuth.GetRole(User);
+
+        var result = await adminMaintenanceService.SetCleanupWorkerEnabledAsync(
+            request.Enabled!.Value,
+            actorId,
+            actorRole);
+
+        return Ok(result);
+    }
 }

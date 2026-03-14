@@ -177,6 +177,9 @@ public class SeedDataImporter(FlowCareDbContext db)
         if (await db.SystemSettings.FindAsync("SoftDeleteRetentionDays") == null)
             db.SystemSettings.Add(new SystemSetting { Key = "SoftDeleteRetentionDays", Value = "30" });
 
+        if (await db.SystemSettings.FindAsync("CleanupWorkerEnabled") == null)
+            db.SystemSettings.Add(new SystemSetting { Key = "CleanupWorkerEnabled", Value = "true" });
+
         if (await db.SystemSettings.FindAsync("CustomerBookingsPerDay") == null)
             db.SystemSettings.Add(new SystemSetting { Key = "CustomerBookingsPerDay", Value = "3" });
 

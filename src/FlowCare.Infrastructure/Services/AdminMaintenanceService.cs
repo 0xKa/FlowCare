@@ -12,6 +12,7 @@ public class AdminMaintenanceService(
     private const string RetentionSettingKey = "SoftDeleteRetentionDays";
     private const string CustomerBookingsPerDayKey = "CustomerBookingsPerDay";
     private const string MaxReschedulesPerAppointmentKey = "MaxReschedulesPerAppointment";
+    private const string CleanupWorkerEnabledKey = "CleanupWorkerEnabled";
 
     public async Task<SoftDeleteSettingsResponse> SetRetentionDaysAsync(
         int days,
@@ -107,6 +108,25 @@ public class AdminMaintenanceService(
             });
 
         return new RateLimitSettingsResponse(customerBookingsPerDay, maxReschedulesPerAppointment);
+    }
+
+    public async Task<CleanupWorkerSettingsResponse> SetCleanupWorkerEnabledAsync(
+        bool enabled,
+        string actorId,
+        string actorRole)
+    {
+        await UpsertSettingAsync(CleanupWorkerEnabledKey, enabled.ToString().ToLowerInvariant());
+        await db.SaveChangesAsync();
+
+        await auditLog.LogAsync(
+            actorId,
+            actorRole,
+            "CLEANUP_WORKER_TOGGLED",
+            "SYSTEM_SETTING",
+            CleanupWorkerEnabledKey,
+            new { enabled });
+
+        return new CleanupWorkerSettingsResponse(enabled);
     }
 
     private async Task<int> GetRetentionDaysAsync()
