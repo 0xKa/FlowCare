@@ -53,6 +53,25 @@ if (app.Environment.IsDevelopment())
     );
 }
 
+var enableApiDocsInProduction = builder.Configuration.GetValue<bool>("ApiDocs:EnableInProduction");
+if (!app.Environment.IsDevelopment() && enableApiDocsInProduction)
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference(
+        options =>
+        {
+            options.Title = "FlowCare API Reference";
+            options.Theme = ScalarTheme.Kepler;
+            options.HideClientButton = true;
+            options.ExpandAllResponses = true;
+            options.Agent = new ScalarAgentOptions
+            {
+                Disabled = true
+            };
+        }
+    );
+}
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
