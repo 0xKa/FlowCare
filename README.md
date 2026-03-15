@@ -1,135 +1,176 @@
-# FlowCare
+# FlowCare API
 
-Rihal Codestacker 2026 (Backend): Queue & Appointment Booking System
+FlowCare is a backend API for the **Rihal Codestacker 2026** challenge.
 
-## Overview
+It provides a role-based queue and appointment booking system for multi-branch operations, with strong auditability, soft-delete lifecycle management, and secure file handling.
 
-FlowCare is a backend API for branch-based appointment booking and queue operations with role-based access control.
+## Project Scope
 
-Roles:
+This implementation covers the required backend domain:
 
-- Admin
-- BranchManager
-- Staff
-- Customer
+- Branches, service types, slots, staff, customers, appointments, and audit logs
+- Basic Authentication with role-based authorization
+- Public browsing of branches, services, and available slots
+- Customer booking, cancellation, and rescheduling
+- Staff, manager, and admin operational flows
+- Slot soft-delete with retention and hard cleanup
+- Startup seed import (idempotent)
+- File upload and retrieval permissions for ID images and appointment attachments
+- PostgreSQL with Entity Framework Core migrations
 
-Tech stack:
+## Tech Stack
 
-- .NET 10 Web API
+- .NET 10 (ASP.NET Core Web API)
+- Entity Framework Core with Npgsql provider
 - PostgreSQL
-- EF Core + Npgsql
-- Basic Authentication
+- Basic Auth (custom authentication handler)
+- BCrypt password hashing
+- CSV export using CsvHelper
+- OpenAPI with Scalar API reference UI
+- Docker and Docker Compose
 
-## Prerequisites
+## Project Structure
 
-- .NET SDK 10
-- PostgreSQL running locally or remotely
+### Clean Architecture API
+
+The app follows Clean Architecture:
+
+- `src/FlowCare.Api`: Web API layer (controllers, middleware, startup)
+- `src/FlowCare.Application`: DTOs and service contracts
+- `src/FlowCare.Domain`: Entities and enums
+- `src/FlowCare.Infrastructure`: EF Core, auth, services, seeding, background jobs, migrations
+
+### Database
+
+Database schema is defined via EF Core code-first approach with migrations. ERD of the database schema:
+
+![Database Schema Diagram](docs/imgs/FlowCareDb-ERD-postgres.png)
+
+> [!NOTE]
+> I choose varchar IDs for entities to follow the provided seed data structure, but in a production system it would be recommended to use GUIDs or auto-increment integers primary keys for better performance and indexing.
+
+## Docs
+
+| Document | Content |
+| --------- | -------- |
+| [Challenge Requirements Coverage](docs/Challenge-Requirements-Coverage.md) | All mandatory and bonus requirements is implemented |
+| [API Endpoints](docs/API-Endpoints.md) | List of all API endpoints |
+| [Auth and Test Requests](docs/Auth-and-Test-Requests.md) | Auth request header and seeded demo accounts |
+| [Technical Details](docs/Technical-Details.md) | Implementation details for pagination, file handling, soft delete, audit logging, and seeding |
 
 ## Configuration
 
-Set values in [src/FlowCare.Api/appsettings.json](src/FlowCare.Api/appsettings.json) or environment variables.
+Key settings ([appsettings.json](./src/FlowCare.Api/appsettings.json) / environment variables):
 
-Required config keys:
+| Key | Purpose | Default |
+| --- | --- | --- |
+| ConnectionStrings__DefaultConnection | PostgreSQL connection string | Host=localhost;Database=FlowCareDb;Username=postgres;Password=postgres |
+| SeedDataPath | Seed JSON path | ../FlowCare.Infrastructure/Data/Seed/example.json |
+| FileStorage__BasePath | Upload root path | uploads |
+| CleanupWorker__Enabled | Background cleanup toggle | true |
+| CleanupWorker__IntervalMinutes | Background cleanup interval | 60 |
+| ApiDocs__EnableInProduction | Expose docs outside development | true |
 
-- `ConnectionStrings__DefaultConnection`
-- `SeedDataPath` (example: `src/FlowCare.Infrastructure/Data/Seed/example.json`)
-- `FileStorage__BasePath` (example: `uploads`)
+> In .NET, double underscore `__` is used to represent nested configuration sections.
 
-Example PowerShell:
+## Deployment
 
-```powershell
-$env:ConnectionStrings__DefaultConnection = "Host=localhost;Database=FlowCareDb;Username=postgres;Password=postgres"
-$env:SeedDataPath = "src/FlowCare.Infrastructure/Data/Seed/example.json"
-$env:FileStorage__BasePath = "uploads"
-```
+The API is deployed on **Render** with PostgreSQL hosted on **Neon**.
 
-## Setup
+**Live Service:** <https://flowcare-api-9wp2.onrender.com>
 
-From the repository root:
+**API Documentation:** <https://flowcare-api-9wp2.onrender.com/scalar/> (You can send requests directly using Scalar UI)
 
-```powershell
-dotnet restore
-dotnet build
-dotnet run --project src/FlowCare.Api --launch-profile https
-```
+### Deployment Setup
 
-The app applies migrations and imports seed data on startup.
+The deployment uses Docker with GitHub integration:
 
-## Database Migrations
+- Docker image is built and deployed automatically from the GitHub repository
+- Render pulls the Docker image on push to the main branch
+- Environment variables are configured in Render dashboard
 
-Create migration:
+### Database (Neon)
 
-```powershell
-dotnet ef migrations add <Name> -p src/FlowCare.Infrastructure -s src/FlowCare.Api
-```
+The PostgreSQL database is hosted on Neon with automatic migrations applied at startup. Database backups can be configured in Neon dashboard.
 
-Apply migration:
+### Notes
 
-```powershell
-dotnet ef database update -p src/FlowCare.Infrastructure -s src/FlowCare.Api
-```
+- The service is deployed on Render's free Hobby plan. Services may spin down after 15 minutes of inactivity and take 30-50 seconds to wake up on the next request.
+- All API documentation and Scalar UI are available at the live endpoint
+- File uploads are stored on the local filesystem in the Render environment, which is ephemeral (Hobby plan limitations).
+- Basic Auth is stateless, clients must send Authorization header (Base64-encoded username:password) on each request when requesting protected endpoints.
 
-## Seeding
+## Run Locally
 
-- Seed import is idempotent.
-- The startup importer checks existing IDs before insert.
-- System setting `SoftDeleteRetentionDays` is seeded if missing.
+Prerequisites:
 
-## Example API Usage
+- .NET SDK 10
+- PostgreSQL running locally
 
-Base URL (https profile): `https://localhost:7154`
+1. Restore and build
 
-Public:
+    ```bash
+    dotnet restore
+    dotnet build FlowCare.slnx
+    ```
 
-```bash
-curl -k https://localhost:7154/api/branches
-```
+1. Ensure connection string is valid in [appsettings.json](./src/FlowCare.Api/appsettings.json), Database will be created automatically on startup if it doesn't exist.
 
-Customer register:
+- default DB: FlowCareDb
+- default user/password: postgres/postgres
 
-```bash
-curl -k -X POST https://localhost:7154/api/auth/register \
- -F "username=cust1" \
- -F "password=Pass@123" \
- -F "fullName=Customer One" \
- -F "email=cust1@example.com" \
- -F "idImage=@./id.png"
-```
+1. Run API
 
-Customer list own appointments:
+    ```bash
+    dotnet run --project src/FlowCare.Api
+    ```
 
-```bash
-curl -k -u cust1:Pass@123 https://localhost:7154/api/customer/appointments
-```
+Development profile URLs are defined in launch settings:
 
-Staff list appointments:
+- <https://localhost:7293>
+- <http://localhost:5031>
 
-```bash
-curl -k -u staff1:Staff@123 https://localhost:7154/api/staff/appointments
-```
+Scalar UI:
 
-Manager create slot:
+- <https://localhost:7293/scalar/v1>
+- <http://localhost:5031/scalar/v1>
 
-```bash
-curl -k -u manager1:Manager@123 -X POST https://localhost:7154/api/branches/br_muscat_001/slots \
- -H "Content-Type: application/json" \
- -d '{"serviceTypeId":"svc_muscat_001","staffId":"usr_staff_001","startAt":"2026-03-20T08:00:00Z","endAt":"2026-03-20T08:30:00Z","capacity":1}'
-```
+The app applies migrations and imports seed data automatically on startup.
 
-Admin cleanup soft-deleted slots:
+## Run With Docker Compose
 
-```bash
-curl -k -u admin:Admin@123 -X POST https://localhost:7154/api/admin/cleanup
-```
+Running with Docker Compose is recommended as it provides a consistent environment with PostgreSQL and the API running in containers.
 
-Audit log CSV export (admin):
+From repository root:
 
-```bash
-curl -k -u admin:Admin@123 https://localhost:7154/api/audit-logs/export -o audit-logs.csv
-```
+  ```bash
+  docker compose up --build
+  ```
 
-## API Docs
+Services:
 
-In development, Scalar docs are available at:
+- API: <http://localhost:8080>
+- PostgreSQL: localhost:5432
 
-- `/scalar/v1`
+Stop services:
+
+  ```bash
+  docker compose down
+  ```
+
+remove volumes too:
+
+  ```bash
+  docker compose down -v
+  ```
+
+## Final Notes
+
+- Build passes for all projects in the solution.
+- Migrations are included and startup migration is enabled.
+- Seeding is idempotent and automatically runs at startup.
+- Role and branch constraints are enforced at service level.
+- Soft-delete and audit requirements are implemented, including cleanup and CSV export.
+- Uploaded files are stored on local filesystem; in containerized deployments use persistent volumes.
+- Slot times are stored in UTC for multi-region/timezone support.
+- Scalar UI Documentation is available at `/scalar/v1` for interactive testing of endpoints (authentication header required for protected endpoints).
