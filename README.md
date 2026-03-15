@@ -47,7 +47,7 @@ Database schema is defined via EF Core code-first approach with migrations. ERD 
 ![Database Schema Diagram](docs/imgs/FlowCareDb-ERD-postgres.png)
 
 > [!NOTE]
-> I choose varchar IDs for entities to follow the provided seed data structure, but in a production system it would be recommended to use GUIDs or auto-increment integers primary keys for better performance and indexing.
+> I chose varchar IDs for entities to follow the provided seed data structure, but in a production system it would be recommended to use GUIDs or auto-increment integers primary keys for better performance and indexing.
 
 ## Docs
 
@@ -107,22 +107,27 @@ Prerequisites:
 - .NET SDK 10
 - PostgreSQL running locally
 
-1. Restore and build
+1. Clone the repository
+
+    ```bash
+    git clone https://github.com/0xKa/FlowCare.git
+    ```
+
+1. From repository root, restore and build the solution
 
     ```bash
     dotnet restore
     dotnet build FlowCare.slnx
     ```
 
-1. Ensure connection string is valid in [appsettings.json](./src/FlowCare.Api/appsettings.json), Database will be created automatically on startup if it doesn't exist.
+1. Ensure connection string is valid in [src/FlowCare.Api/appsettings.json](./src/FlowCare.Api/appsettings.json), Database will be created automatically on startup if it doesn't exist.
 
-- default DB: FlowCareDb
-- default user/password: postgres/postgres
+- Default connection string: `Host=localhost;Database=FlowCareDb;Username=postgres;Password=postgres`
 
 1. Run API
 
     ```bash
-    dotnet run --project src/FlowCare.Api
+    dotnet run --project ./src/FlowCare.Api -lp https
     ```
 
 Development profile URLs are defined in launch settings:
@@ -150,6 +155,7 @@ From repository root:
 Services:
 
 - API: <http://localhost:8080>
+- Scalar UI: <http://localhost:8080/scalar>
 - PostgreSQL: localhost:5432
 
 Stop services:
