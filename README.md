@@ -73,33 +73,6 @@ Key settings ([appsettings.json](./src/FlowCare.Api/appsettings.json) / environm
 
 > In .NET, double underscore `__` is used to represent nested configuration sections.
 
-## Deployment
-
-The API is deployed on **Render** with PostgreSQL hosted on **Neon**.
-
-**Live Service:** <https://flowcare-api-9wp2.onrender.com>
-
-**API Documentation:** <https://flowcare-api-9wp2.onrender.com/scalar/> (You can send requests directly using Scalar UI)
-
-### Deployment Setup
-
-The deployment uses Docker with GitHub integration:
-
-- Docker image is built and deployed automatically from the GitHub repository
-- Render pulls the Docker image on push to the main branch
-- Environment variables are configured in Render dashboard
-
-### Database (Neon)
-
-The PostgreSQL database is hosted on Neon with automatic migrations applied at startup. Database backups can be configured in Neon dashboard.
-
-### Notes
-
-- The service is deployed on Render's free Hobby plan. Services may spin down after 15 minutes of inactivity and take 30-50 seconds to wake up on the next request.
-- All API documentation and Scalar UI are available at the live endpoint
-- File uploads are stored on the local filesystem in the Render environment, which is ephemeral (Hobby plan limitations).
-- Basic Auth is stateless, clients must send Authorization header (Base64-encoded username:password) on each request when requesting protected endpoints.
-
 ## Run Locally
 
 Prerequisites:
@@ -169,6 +142,33 @@ remove volumes too:
   ```bash
   docker compose down -v
   ```
+
+## Bonus: Deployment
+
+The API is deployed on **Render** with PostgreSQL hosted on **Neon**, and **endpoints can be tested live using Scalar UI**.
+
+**Live Service:** <https://flowcare-api-9wp2.onrender.com>
+
+**API Documentation:** <https://flowcare-api-9wp2.onrender.com/scalar/> (You can send requests directly using Scalar UI)
+
+### Deployment Setup
+
+The deployment uses Docker with GitHub integration:
+
+- Docker image is built and deployed automatically from the GitHub repository
+- Render pulls the Docker image on push to the main branch
+- Environment variables are configured in Render dashboard
+
+### Database (Neon)
+
+The PostgreSQL database is hosted on Neon with automatic migrations applied at startup. Database backups can be configured in Neon dashboard.
+
+### Notes
+
+- The service is deployed on Render's free Hobby plan. Services may spin down after 15 minutes of inactivity and take 30-50 seconds to wake up on the next request.
+- All API documentation and Scalar UI are available at the live endpoint
+- File uploads are stored on the local filesystem in the Render environment, which is ephemeral (Hobby plan limitations).
+- Basic Auth is stateless, clients must send Authorization header (Base64-encoded username:password) on each request when requesting protected endpoints.
 
 ## Final Notes
 
