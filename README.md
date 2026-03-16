@@ -105,13 +105,13 @@ Prerequisites:
 
 Development profile URLs are defined in launch settings:
 
-- <https://localhost:7293>
-- <http://localhost:5031>
+- HTTP: <http://localhost:5031>
+- HTTPS: <https://localhost:7293> (you may need to trust the development certificate for your OS to avoid browser warnings)
 
 Scalar UI:
 
-- <https://localhost:7293/scalar/v1>
 - <http://localhost:5031/scalar/v1>
+- <https://localhost:7293/scalar/v1>
 
 The app applies migrations and imports seed data automatically on startup.
 
@@ -142,6 +142,14 @@ remove volumes too:
   ```bash
   docker compose down -v
   ```
+
+## Testing API
+
+**Scalar**: You can test the API using Scalar UI at `/scalar/v1` (check [Auth and Test Requests](docs/Auth-and-Test-Requests.md) for authentication details and seeded accounts).
+
+**Postman**: You can import the provided Postman collection in [postman/FlowCare-API.postman_collection.json](./postman/FlowCare-API.postman_collection.json) for pre-configured requests.
+
+- Make sure to also import the environment variables from [postman/environments](./postman/environments).
 
 ## Bonus: Deployment
 
